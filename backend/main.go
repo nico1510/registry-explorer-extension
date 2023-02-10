@@ -2,12 +2,14 @@ package main
 
 import (
 	"flag"
-	"github.com/labstack/echo/middleware"
+	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,7 +46,7 @@ func main() {
 	}
 	router.Listener = ln
 
-	router.GET("/hello", hello)
+	router.GET("/token/:namespace/:name", getToken)
 
 	logger.Fatal(router.Start(startURL))
 }
@@ -53,8 +55,23 @@ func listen(path string) (net.Listener, error) {
 	return net.Listen("unix", path)
 }
 
-func hello(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, HTTPMessageBody{Message: "hello"})
+func getToken(ctx echo.Context) error {
+	namespace := ctx.Param("namespace")
+	name := ctx.Param("name")
+	resp, err := http.Get(fmt.Sprintf("https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s/%s:pull", namespace, name))
+	if err != nil {
+		logger.Errorf("Error getting token: %s", err)
+		return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{
+			Message: err.Error(),
+		})
+	} else {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			logger.Errorf("Error reading token response: %s", err)
+			return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{})
+		}
+		return ctx.JSON(resp.StatusCode, body)
+	}
 }
 
 type HTTPMessageBody struct {

@@ -6,14 +6,15 @@ BUILDER=buildx-multi-arch
 INFO_COLOR = \033[0;36m
 NO_COLOR   = \033[m
 
-build-extension: ## Build service image to be deployed as a desktop extension
-	docker build --tag=$(IMAGE):$(TAG) .
+build: ## Build service image to be deployed as a desktop extension
+	docker build --tag=$(IMAGE):$(TAG) . --load
 
-install-extension: build-extension ## Install the extension
+install-extension: build ## Install the extension
 	docker extension install $(IMAGE):$(TAG)
 
-update-extension: build-extension ## Update the extension
-	docker extension update $(IMAGE):$(TAG)
+update: build ## Update the extension
+	yes | docker extension update $(IMAGE):$(TAG)
+	docker extension dev debug $(IMAGE):$(TAG)
 
 prepare-buildx: ## Create buildx builder for multi-arch build, if not exists
 	docker buildx inspect $(BUILDER) || docker buildx create --name=$(BUILDER) --driver=docker-container --driver-opt=network=host

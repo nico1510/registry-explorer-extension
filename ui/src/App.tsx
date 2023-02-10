@@ -1,7 +1,9 @@
-import React from "react";
-import Button from "@mui/material/Button";
 import { createDockerDesktopClient } from "@docker/extension-api-client";
 import { Stack, TextField, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import { type QueryOptions } from "@tanstack/react-query";
+import React from "react";
+import { queryClient } from "./main";
 
 // Note: This line relies on Docker Desktop's presence as a host application.
 // If you're running this React app in a browser, it won't work properly.
@@ -11,43 +13,45 @@ function useDockerDesktopClient() {
   return client;
 }
 
+function getTokenQuery(repo: string): QueryOptions<string> {
+  const tokenPath = `/token/${repo}`;
+  return {
+    queryKey: [tokenPath],
+    queryFn: () =>
+      client.extension.vm?.service?.get(tokenPath) as Promise<string>,
+  };
+}
+
 export function App() {
-  const [response, setResponse] = React.useState<string>();
   const ddClient = useDockerDesktopClient();
 
-  const fetchAndDisplayResponse = async () => {
-    const result = await ddClient.extension.vm?.service?.get("/hello");
-    setResponse(JSON.stringify(result));
-  };
+  const [repo, setRepo] = React.useState("moby/buildkit");
+  const [token, setToken] = React.useState("");
 
   return (
     <>
-      <Typography variant="h3">Docker extension demo</Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        This is a basic page rendered with MUI, using Docker's theme. Read the
-        MUI documentation to learn more. Using MUI in a conventional way and
-        avoiding custom styling will help make sure your extension continues to
-        look great as Docker's theme evolves.
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        Pressing the below button will trigger a request to the backend. Its
-        response will appear in the textarea.
-      </Typography>
+      <Typography variant="h3">Registry Explorer</Typography>
       <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
-        <Button variant="contained" onClick={fetchAndDisplayResponse}>
-          Call backends
-        </Button>
-
         <TextField
-          label="Backend response"
+          label="Repository"
           sx={{ width: 480 }}
-          disabled
-          multiline
+          disabled={!repo}
           variant="outlined"
-          minRows={5}
-          value={response ?? ""}
+          value={repo}
+          onChange={(e) => setRepo(e.target.value)}
         />
+        <Button
+          variant="contained"
+          onClick={async () =>
+            setToken(await queryClient.fetchQuery(getTokenQuery(repo)))
+          }
+        >
+          Submit
+        </Button>
       </Stack>
+      <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+        {token}
+      </Typography>
     </>
   );
 }

@@ -1,9 +1,12 @@
+import { DockerMuiThemeProvider } from "@docker/docker-mui-theme";
+import CssBaseline from "@mui/material/CssBaseline";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import CssBaseline from "@mui/material/CssBaseline";
-import { DockerMuiThemeProvider } from "@docker/docker-mui-theme";
 
-import { App } from './App';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { App } from "./App";
+
+export const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -14,7 +17,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     */}
     <DockerMuiThemeProvider>
       <CssBaseline />
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </DockerMuiThemeProvider>
   </React.StrictMode>
 );
