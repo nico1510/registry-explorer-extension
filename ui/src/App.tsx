@@ -28,18 +28,75 @@ function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
   };
 }
 
+function getIndexQuery(
+  repo: string,
+  tag: string,
+  token: string
+): QueryOptions<Index> {
+  return {
+    queryKey: ["index", repo, tag, token],
+    queryFn: () => fetchindex(repo, tag, token),
+  };
+}
+
+interface Index {
+  schemaVersion: number;
+  digest: string;
+  contentType: string;
+  manifests: Array<{
+    mediaType: string;
+    digest: string;
+    size: number;
+    platform: {
+      architecture: string;
+      os: string;
+      variant?: string;
+      features?: string[];
+    };
+  }>;
+}
+
+async function fetchindex(repo: string, tag: string, token: string) {
+  const result = await fetch(
+    `https://registry-1.docker.io/v2/${repo}/manifests/${tag}`,
+    {
+      headers: {
+        Accept:
+          "application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  const body = await result.json();
+  return {
+    digest: result.headers.get("docker-content-digest"),
+    contentType: result.headers.get("content-type"),
+    ...body,
+  } as Index;
+}
+
 export function App() {
   const ddClient = useDockerDesktopClient();
 
-  const [repo, setRepo] = React.useState("moby/buildkit");
+  const [reference, setReference] = React.useState("moby/buildkit:latest");
+  const [repo, tag] = reference.split(":");
   const [enabled, setEnabled] = React.useState(false);
 
-  const { data: token } = useQuery({
+  const { data: tokenResponse } = useQuery({
     ...getTokenQuery(repo),
     refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: false,
     refetchInterval: 1000 * 290,
     enabled,
+  });
+
+  const { data: index } = useQuery({
+    ...getIndexQuery(repo, tag, tokenResponse?.Token || ""),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: enabled && !!tokenResponse,
   });
 
   return (
@@ -49,12 +106,12 @@ export function App() {
         <TextField
           label="Repository"
           sx={{ width: 480 }}
-          disabled={!repo}
+          disabled={!reference}
           variant="outlined"
-          value={repo}
+          value={reference}
           onChange={(e) => {
             setEnabled(false);
-            setRepo(e.target.value);
+            setReference(e.target.value);
           }}
         />
         <Button variant="contained" onClick={() => setEnabled(true)}>
@@ -62,7 +119,7 @@ export function App() {
         </Button>
       </Stack>
       <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        {token?.Token}
+        {index && JSON.stringify(index, null, 2)}
       </Typography>
     </>
   );
