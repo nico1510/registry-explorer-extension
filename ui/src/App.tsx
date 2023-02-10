@@ -62,7 +62,7 @@ async function fetchindex(repo: string, tag: string, token: string) {
     {
       headers: {
         Accept:
-          "application/vnd.oci.image.index.v1+json,application/vnd.docker.distribution.manifest.list.v2+json",
+          "application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json",
         Authorization: `Bearer ${token}`,
       },
     }
