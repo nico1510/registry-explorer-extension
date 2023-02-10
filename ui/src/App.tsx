@@ -1,9 +1,8 @@
 import { createDockerDesktopClient } from "@docker/extension-api-client";
 import { Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
-import { type QueryOptions } from "@tanstack/react-query";
+import { useQuery, type QueryOptions } from "@tanstack/react-query";
 import React from "react";
-import { queryClient } from "./main";
 
 // Note: This line relies on Docker Desktop's presence as a host application.
 // If you're running this React app in a browser, it won't work properly.
@@ -13,12 +12,19 @@ function useDockerDesktopClient() {
   return client;
 }
 
-function getTokenQuery(repo: string): QueryOptions<string> {
+interface TokenResponse {
+  Token: string;
+  Access_token: string;
+  Expires_in: number;
+  Issued_at: string;
+}
+
+function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
   const tokenPath = `/token/${repo}`;
   return {
     queryKey: [tokenPath],
     queryFn: () =>
-      client.extension.vm?.service?.get(tokenPath) as Promise<string>,
+      client.extension.vm?.service?.get(tokenPath) as Promise<TokenResponse>,
   };
 }
 
@@ -26,7 +32,15 @@ export function App() {
   const ddClient = useDockerDesktopClient();
 
   const [repo, setRepo] = React.useState("moby/buildkit");
-  const [token, setToken] = React.useState("");
+  const [enabled, setEnabled] = React.useState(false);
+
+  const { data: token } = useQuery({
+    ...getTokenQuery(repo),
+    refetchOnMount: false,
+    retry: false,
+    refetchInterval: 1000 * 290,
+    enabled,
+  });
 
   return (
     <>
@@ -38,19 +52,17 @@ export function App() {
           disabled={!repo}
           variant="outlined"
           value={repo}
-          onChange={(e) => setRepo(e.target.value)}
+          onChange={(e) => {
+            setEnabled(false);
+            setRepo(e.target.value);
+          }}
         />
-        <Button
-          variant="contained"
-          onClick={async () =>
-            setToken(await queryClient.fetchQuery(getTokenQuery(repo)))
-          }
-        >
+        <Button variant="contained" onClick={() => setEnabled(true)}>
           Submit
         </Button>
       </Stack>
       <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        {token}
+        {token?.Token}
       </Typography>
     </>
   );

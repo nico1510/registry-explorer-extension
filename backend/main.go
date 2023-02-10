@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -55,6 +56,21 @@ func listen(path string) (net.Listener, error) {
 	return net.Listen("unix", path)
 }
 
+func getJson(res *http.Response, target interface{}) error {
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(body, target)
+}
+
+type TokenResponse struct {
+	Token        string
+	Access_token string
+	Expires_in   int
+	Issued_at    string
+}
+
 func getToken(ctx echo.Context) error {
 	namespace := ctx.Param("namespace")
 	name := ctx.Param("name")
@@ -65,12 +81,18 @@ func getToken(ctx echo.Context) error {
 			Message: err.Error(),
 		})
 	} else {
-		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			logger.Errorf("Error reading token response: %s", err)
 			return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{})
 		}
-		return ctx.JSON(resp.StatusCode, body)
+		token := new(TokenResponse)
+		err = getJson(resp, &token)
+		if err != nil {
+			logger.Errorf("Error parsing token response: %s", err)
+			return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{})
+		}
+
+		return ctx.JSON(resp.StatusCode, token)
 	}
 }
 
