@@ -34,7 +34,7 @@ function getIndexQuery(
   token: string
 ): QueryOptions<Index> {
   return {
-    queryKey: ["index", repo, tag, token],
+    queryKey: ["index", repo, tag],
     queryFn: () => fetchindex(repo, tag, token),
   };
 }
@@ -95,6 +95,8 @@ export function App() {
     ...getIndexQuery(repo, tag, tokenResponse?.Token || ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    staleTime: 10 * (60 * 1000), // 10 mins
+    cacheTime: 10 * (60 * 1000), // 10 mins
     retry: false,
     enabled: enabled && !!tokenResponse,
   });
