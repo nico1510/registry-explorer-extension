@@ -1,12 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
-	"fmt"
-	"io/ioutil"
 	"net"
-	"net/http"
 	"os"
 
 	"github.com/labstack/echo"
@@ -47,55 +43,9 @@ func main() {
 	}
 	router.Listener = ln
 
-	router.GET("/token/:namespace/:name", getToken)
-
 	logger.Fatal(router.Start(startURL))
 }
 
 func listen(path string) (net.Listener, error) {
 	return net.Listen("unix", path)
-}
-
-func getJson(res *http.Response, target interface{}) error {
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(body, target)
-}
-
-type TokenResponse struct {
-	Token        string
-	Access_token string
-	Expires_in   int
-	Issued_at    string
-}
-
-func getToken(ctx echo.Context) error {
-	namespace := ctx.Param("namespace")
-	name := ctx.Param("name")
-	resp, err := http.Get(fmt.Sprintf("https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s/%s:pull", namespace, name))
-	if err != nil {
-		logger.Errorf("Error getting token: %s", err)
-		return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{
-			Message: err.Error(),
-		})
-	} else {
-		if err != nil {
-			logger.Errorf("Error reading token response: %s", err)
-			return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{})
-		}
-		token := new(TokenResponse)
-		err = getJson(resp, &token)
-		if err != nil {
-			logger.Errorf("Error parsing token response: %s", err)
-			return ctx.JSON(http.StatusInternalServerError, HTTPMessageBody{})
-		}
-
-		return ctx.JSON(resp.StatusCode, token)
-	}
-}
-
-type HTTPMessageBody struct {
-	Message string
 }

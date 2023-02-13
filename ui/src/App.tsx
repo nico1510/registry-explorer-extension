@@ -1,8 +1,11 @@
 import { createDockerDesktopClient } from "@docker/extension-api-client";
 import { Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
-import { useQuery, type QueryOptions } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import Graph from "./Graph";
+import { getIndexQuery } from "./useIndex";
+import { getTokenQuery } from "./useToken";
 
 // Note: This line relies on Docker Desktop's presence as a host application.
 // If you're running this React app in a browser, it won't work properly.
@@ -10,69 +13,6 @@ const client = createDockerDesktopClient();
 
 function useDockerDesktopClient() {
   return client;
-}
-
-interface TokenResponse {
-  Token: string;
-  Access_token: string;
-  Expires_in: number;
-  Issued_at: string;
-}
-
-function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
-  const tokenPath = `/token/${repo}`;
-  return {
-    queryKey: [tokenPath],
-    queryFn: () =>
-      client.extension.vm?.service?.get(tokenPath) as Promise<TokenResponse>,
-  };
-}
-
-function getIndexQuery(
-  repo: string,
-  tag: string,
-  token: string
-): QueryOptions<Index> {
-  return {
-    queryKey: ["index", repo, tag],
-    queryFn: () => fetchindex(repo, tag, token),
-  };
-}
-
-interface Index {
-  schemaVersion: number;
-  digest: string;
-  contentType: string;
-  manifests: Array<{
-    mediaType: string;
-    digest: string;
-    size: number;
-    platform: {
-      architecture: string;
-      os: string;
-      variant?: string;
-      features?: string[];
-    };
-  }>;
-}
-
-async function fetchindex(repo: string, tag: string, token: string) {
-  const result = await fetch(
-    `https://registry-1.docker.io/v2/${repo}/manifests/${tag}`,
-    {
-      headers: {
-        Accept:
-          "application/vnd.oci.image.index.v1+json,application/vnd.oci.image.manifest.v1+json,application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v2+json",
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  const body = await result.json();
-  return {
-    digest: result.headers.get("docker-content-digest"),
-    contentType: result.headers.get("content-type"),
-    ...body,
-  } as Index;
 }
 
 export function App() {
@@ -92,17 +32,16 @@ export function App() {
   });
 
   const { data: index } = useQuery({
-    ...getIndexQuery(repo, tag, tokenResponse?.Token || ""),
+    ...getIndexQuery(repo, tag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     staleTime: 10 * (60 * 1000), // 10 mins
     cacheTime: 10 * (60 * 1000), // 10 mins
-    retry: false,
     enabled: enabled && !!tokenResponse,
   });
 
   return (
-    <>
+    <Stack height="100%">
       <Typography variant="h3">Registry Explorer</Typography>
       <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
         <TextField
@@ -120,9 +59,7 @@ export function App() {
           Submit
         </Button>
       </Stack>
-      <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
-        {index && JSON.stringify(index, null, 2)}
-      </Typography>
-    </>
+      {index && <Graph index={index} />}
+    </Stack>
   );
 }
