@@ -1,4 +1,3 @@
-import { createDockerDesktopClient } from "@docker/extension-api-client";
 import { Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useQuery } from "@tanstack/react-query";
@@ -7,19 +6,27 @@ import Graph from "./Graph";
 import { getIndexQuery } from "./useIndex";
 import { getTokenQuery } from "./useToken";
 
-// Note: This line relies on Docker Desktop's presence as a host application.
-// If you're running this React app in a browser, it won't work properly.
-const client = createDockerDesktopClient();
-
-function useDockerDesktopClient() {
-  return client;
-}
-
 export function App() {
-  const ddClient = useDockerDesktopClient();
-
   const [reference, setReference] = React.useState("moby/buildkit:latest");
-  const [repo, tag] = reference.split(":");
+  let repo = "";
+  let digestOrTag = "";
+
+  if (reference.includes("sha256:")) {
+    const parts = reference.split("@");
+    repo = parts[0];
+    digestOrTag = parts[1];
+  } else if (reference.includes(":")) {
+    const parts = reference.split(":");
+    repo = parts[0];
+    digestOrTag = parts[1];
+  } else if (reference.includes("/")) {
+    repo = reference;
+    digestOrTag = "latest";
+  } else {
+    repo = `library/${reference}`;
+    digestOrTag = "latest";
+  }
+
   const [enabled, setEnabled] = React.useState(false);
 
   const { data: tokenResponse } = useQuery({
@@ -27,12 +34,13 @@ export function App() {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: false,
+    staleTime: 1000 * 289,
     refetchInterval: 1000 * 290,
-    enabled,
+    enabled: enabled && !!repo && !!digestOrTag,
   });
 
-  const { data: index } = useQuery({
-    ...getIndexQuery(repo, tag, tokenResponse?.token ?? ""),
+  const { data: root } = useQuery({
+    ...getIndexQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     staleTime: 10 * (60 * 1000), // 10 mins
@@ -59,7 +67,7 @@ export function App() {
           Submit
         </Button>
       </Stack>
-      {index && <Graph index={index} />}
+      {root && <Graph index={root} />}
     </Stack>
   );
 }
