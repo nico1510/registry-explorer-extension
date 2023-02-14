@@ -1,4 +1,5 @@
 import { QueryOptions } from "@tanstack/react-query";
+import { proxy } from "./main";
 
 export interface TokenResponse {
   token: string;
@@ -14,7 +15,7 @@ export function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
     queryFn: async () =>
       (
         await fetch(
-          `http://0.0.0.0:8080/https://auth.docker.io/token?service=registry.docker.io&scope=repository:${repo}:pull`
+          `${proxy}https://auth.docker.io/token?service=registry.docker.io&scope=repository:${repo}:pull`
         )
       ).json(),
   };

@@ -27,6 +27,7 @@ const Node = ({
       <Tooltip
         classes={{ tooltip: "tooltip" }}
         placement="bottom-start"
+        disableInteractive={false}
         title={
           <pre>
             {JSON.stringify(

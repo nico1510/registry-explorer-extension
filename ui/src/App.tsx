@@ -3,8 +3,11 @@ import Button from "@mui/material/Button";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import Graph from "./Graph";
-import { getIndexQuery } from "./useIndex";
+import { getIndexQuery, Index, isIndex, Manifest } from "./useIndex";
 import { getTokenQuery } from "./useToken";
+import type { HierarchyPointNode } from "d3-hierarchy";
+import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
+import { queryClient } from "./main";
 
 export function App() {
   const [reference, setReference] = React.useState("moby/buildkit:latest");
@@ -43,10 +46,44 @@ export function App() {
     ...getIndexQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-    staleTime: 10 * (60 * 1000), // 10 mins
-    cacheTime: 10 * (60 * 1000), // 10 mins
+    staleTime: Infinity,
+    cacheTime: Infinity,
     enabled: enabled && !!tokenResponse,
   });
+
+  const onNodeClick = async (node: HierarchyPointNode<TreeNodeDatum>) => {
+    const result = await queryClient.fetchQuery(
+      getIndexQuery(
+        repo,
+        node.data.attributes?.digest as string,
+        tokenResponse?.token ?? ""
+      )
+    );
+    const parentKey = getIndexQuery(
+      repo,
+      node.parent?.data.attributes?._digestOrTag as string,
+      tokenResponse?.token ?? ""
+    ).queryKey;
+    queryClient.setQueryData(parentKey!, ((previous: Index | Manifest) => {
+      if (isIndex(previous)) {
+        return {
+          ...previous,
+          manifests: previous.manifests.map((mf) => {
+            if (mf.digest === node.data.attributes?.digest) {
+              return {
+                ...mf,
+                manifest: result,
+              };
+            }
+            return mf;
+          }),
+        };
+      }
+      return undefined;
+    }) as any);
+
+    console.log(result);
+  };
 
   return (
     <Stack height="100%">
@@ -67,7 +104,7 @@ export function App() {
           Submit
         </Button>
       </Stack>
-      {root && <Graph index={root} />}
+      {root && <Graph index={root} onNodeClick={onNodeClick} />}
     </Stack>
   );
 }

@@ -1,4 +1,5 @@
 import { QueryOptions } from "@tanstack/react-query";
+import { proxy } from "./main";
 
 export function getIndexQuery(
   repo: string,
@@ -13,6 +14,7 @@ export function getIndexQuery(
 
 export interface Manifest {
   schemaVersion: number;
+  _digestOrTag: string;
   mediaType: string;
   config: {
     mediaType: string;
@@ -31,6 +33,7 @@ export interface Manifest {
 
 export interface Index {
   schemaVersion: number;
+  _digestOrTag: string;
   digest: string;
   contentType: string;
   manifests: Array<{
@@ -56,10 +59,9 @@ export function isIndex(
   return (indexOrManifest as Index).manifests !== undefined;
 }
 
-async function fetchindex(repo: string, tag: string, token: string) {
+async function fetchindex(repo: string, digestOrTag: string, token: string) {
   const result = await fetch(
-    `http://0.0.0.0:8080/https://registry-1.docker.io/v2/${repo}/manifests/${tag}`,
-    //`http://0.0.0.0:8080/https://registry-1.docker.io/v2/${repo}/manifests/${tag}`,
+    `${proxy}https://registry-1.docker.io/v2/${repo}/manifests/${digestOrTag}`,
     {
       headers: {
         Accept:
@@ -72,6 +74,7 @@ async function fetchindex(repo: string, tag: string, token: string) {
   return {
     digest: result.headers.get("docker-content-digest"),
     contentType: result.headers.get("content-type"),
+    _digestOrTag: digestOrTag,
     ...body,
   } as Index | Manifest;
 }
