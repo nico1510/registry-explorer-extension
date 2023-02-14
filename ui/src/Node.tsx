@@ -14,6 +14,7 @@ const Node = ({ nodeData }: { nodeData: TreeNodeDatum }) => {
         width: 610,
         height: 60,
       }}
+      y={-30}
     >
       <Tooltip
         classes={{ tooltip: "tooltip" }}
