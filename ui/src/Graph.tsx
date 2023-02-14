@@ -31,7 +31,7 @@ function indexToTree(index: Index): RawNodeDatum {
 
 function manifestToTree(manifest: Manifest): RawNodeDatum {
   return {
-    name: manifest.config.digest,
+    name: manifest.digest,
     attributes: manifest as any,
     children: manifest.layers?.map(
       ({ digest, ...child }) =>
@@ -83,7 +83,7 @@ export default function Graph({
         zoom={0.7}
         data={data}
         separation={{ siblings: 2, nonSiblings: 3 }}
-        nodeSize={{ x: 1400, y: 42 }}
+        nodeSize={{ x: 1400, y: 90 }}
       />
     </Box>
   );

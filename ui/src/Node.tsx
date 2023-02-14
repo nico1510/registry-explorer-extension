@@ -1,6 +1,7 @@
-import { Box, Tooltip, useTheme } from "@mui/material";
+import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 import { SyntheticEvent } from "react";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
+import { Manifest } from "./useIndex";
 
 const Node = ({
   nodeData,
@@ -14,6 +15,7 @@ const Node = ({
     ? theme.palette.docker.violet[700]
     : theme.palette.docker.blue[700];
   const color = theme.palette.getContrastText(backgroundColor);
+  const config: Manifest["config"] = nodeData.attributes?.config as any;
   return (
     <foreignObject
       style={{
@@ -22,7 +24,7 @@ const Node = ({
         backgroundColor,
         overflow: "auto",
         width: 610,
-        height: 60,
+        height: config ? 100 : 60,
       }}
       y={-30}
       onClick={onClick}
@@ -61,6 +63,18 @@ const Node = ({
         >
           <strong>digest: {nodeData.name}</strong>
           media_type: {nodeData.attributes?.mediaType}
+          {!!config && (
+            <Stack
+              padding={0.5}
+              sx={{ border: `1px dashed ${color}`, position: "relative" }}
+            >
+              <Typography sx={{ position: "absolute", top: -18 }}>
+                config
+              </Typography>
+              <div>digest: {config.digest}</div>
+              <div>media_type: {config.mediaType}</div>
+            </Stack>
+          )}
         </div>
       </Tooltip>
     </foreignObject>

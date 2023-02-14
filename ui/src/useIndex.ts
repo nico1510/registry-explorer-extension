@@ -15,6 +15,7 @@ export function getIndexQuery(
 export interface Manifest {
   schemaVersion: number;
   _digestOrTag: string;
+  digest: string;
   mediaType: string;
   config: {
     mediaType: string;
