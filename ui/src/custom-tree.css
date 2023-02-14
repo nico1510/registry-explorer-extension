@@ -1,9 +1,10 @@
-.node__leaf > circle {
-  fill: green;
-  /* Let's also make the radius of leaf nodes larger */
-  r: 40;
+.node__root {
+  transform: translate(-610px, -20px);
 }
 
-.rd3t-label {
-  cursor: text;
+.tooltip {
+  max-width: max-content !important;
+  text-transform: none !important;
+  max-height: 300px !important;
+  overflow: auto;
 }

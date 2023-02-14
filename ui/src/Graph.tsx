@@ -4,25 +4,23 @@ import Tree from "react-d3-tree";
 import type { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { Index, isIndex, Manifest } from "./useIndex";
 import "./custom-tree.css";
+import Node from "./Node";
 
 function indexToTree(index: Index): RawNodeDatum {
   return {
     name: index.digest,
-    attributes: {
-      digest: index.digest,
-      contentType: index.contentType,
-    },
-    children: index.manifests.map(
-      ({ digest, manifest, platform, annotations, ...rest }) =>
-        manifest
-          ? manifestToTree(manifest)
-          : {
-              name: digest,
-              attributes: {
-                ...platform,
-                ...rest,
-              },
-            }
+    attributes: index as any,
+    children: index.manifests.map(({ digest, manifest, platform, ...rest }) =>
+      manifest
+        ? manifestToTree(manifest)
+        : {
+            name: digest,
+            attributes: {
+              digest,
+              ...platform,
+              ...rest,
+            },
+          }
     ) as any,
   };
 }
@@ -30,16 +28,17 @@ function indexToTree(index: Index): RawNodeDatum {
 function manifestToTree(manifest: Manifest): RawNodeDatum {
   return {
     name: manifest.config.digest,
-    attributes: {
-      ...manifest.config,
-    },
-    children: manifest.layers?.map(({ digest, annotations, ...child }) => ({
-      name: digest,
-      attributes: {
-        ...child,
-        // ...annotations,
-      },
-    })),
+    attributes: manifest as any,
+    children: manifest.layers?.map(
+      ({ digest, ...child }) =>
+        ({
+          name: digest,
+          attributes: {
+            _isLayer: true,
+            ...child,
+          },
+        } as any)
+    ),
   };
 }
 
@@ -50,11 +49,17 @@ export default function Graph({ index }: { index: Index | Manifest }) {
   return (
     <Box ref={containerRef} style={{ height: "100%" }}>
       <Tree
+        hasInteractiveNodes
         rootNodeClassName="node__root"
         branchNodeClassName="node__branch"
         leafNodeClassName="node__leaf"
-        translate={{ x: size?.width ?? 500, y: size?.height ?? 500 }}
+        renderCustomNodeElement={(nodeProps) => (
+          <Node nodeData={nodeProps.nodeDatum} />
+        )}
+        translate={{ x: 610, y: size ? size.height / 2 : 500 }}
+        zoom={0.7}
         data={data}
+        nodeSize={{ x: 610, y: 80 }}
       />
     </Box>
   );
