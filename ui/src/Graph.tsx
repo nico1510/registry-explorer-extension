@@ -53,8 +53,12 @@ export default function Graph({ index }: { index: Index | Manifest }) {
         rootNodeClassName="node__root"
         branchNodeClassName="node__branch"
         leafNodeClassName="node__leaf"
+        onNodeClick={(node) => console.log(node)}
         renderCustomNodeElement={(nodeProps) => (
-          <Node nodeData={nodeProps.nodeDatum} />
+          <Node
+            nodeData={nodeProps.nodeDatum}
+            onClick={nodeProps.onNodeClick}
+          />
         )}
         translate={{ x: 610, y: size ? size.height / 2 : 500 }}
         zoom={0.7}

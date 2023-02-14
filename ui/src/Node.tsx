@@ -1,7 +1,14 @@
 import { Tooltip } from "@mui/material";
+import { SyntheticEvent } from "react";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 
-const Node = ({ nodeData }: { nodeData: TreeNodeDatum }) => {
+const Node = ({
+  nodeData,
+  onClick,
+}: {
+  nodeData: TreeNodeDatum;
+  onClick: (evt: SyntheticEvent) => void;
+}) => {
   return (
     <foreignObject
       style={{
@@ -15,6 +22,7 @@ const Node = ({ nodeData }: { nodeData: TreeNodeDatum }) => {
         height: 60,
       }}
       y={-30}
+      onClick={onClick}
     >
       <Tooltip
         classes={{ tooltip: "tooltip" }}
