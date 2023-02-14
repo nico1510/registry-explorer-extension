@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import React from "react";
 import Tree from "react-d3-tree";
@@ -6,9 +6,9 @@ import type {
   RawNodeDatum,
   TreeNodeDatum,
 } from "react-d3-tree/lib/types/types/common";
-import "./custom-tree.css";
 import Node from "./Node";
 import { Index, isIndex, Manifest } from "./useIndex";
+import { css } from "@emotion/css";
 
 function indexToTree(index: Index): RawNodeDatum {
   return {
@@ -56,14 +56,22 @@ export default function Graph({
   const data = isIndex(index) ? indexToTree(index) : manifestToTree(index);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const size = containerRef.current?.getBoundingClientRect();
-
+  const theme = useTheme();
   return (
-    <Box ref={containerRef} style={{ height: "100%" }}>
+    <Box ref={containerRef} sx={{ height: "100%" }}>
       <Tree
         hasInteractiveNodes
-        rootNodeClassName="node__root"
-        branchNodeClassName="node__branch"
-        leafNodeClassName="node__leaf"
+        rootNodeClassName={css`
+          transform: translate(-610px, 0);
+        `}
+        svgClassName={css`
+          path {
+            stroke: ${theme.palette.text.primary};
+          }
+          div {
+            letter-spacing: 0;
+          }
+        `}
         onNodeClick={onNodeClick}
         renderCustomNodeElement={(nodeProps) => (
           <Node

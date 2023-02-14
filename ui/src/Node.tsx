@@ -1,4 +1,4 @@
-import { Tooltip } from "@mui/material";
+import { Box, Tooltip, useTheme } from "@mui/material";
 import { SyntheticEvent } from "react";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 
@@ -9,14 +9,17 @@ const Node = ({
   nodeData: TreeNodeDatum;
   onClick: (evt: SyntheticEvent) => void;
 }) => {
+  const theme = useTheme();
+  const backgroundColor = nodeData.attributes?._isLayer
+    ? theme.palette.docker.violet[700]
+    : theme.palette.docker.blue[700];
+  const color = theme.palette.getContrastText(backgroundColor);
   return (
     <foreignObject
       style={{
-        border: "1px solid black",
-        color: "black",
-        backgroundColor: nodeData.attributes?._isLayer
-          ? "green"
-          : "rgb(248, 248, 255)",
+        border: `1px solid ${color}`,
+        color,
+        backgroundColor,
         overflow: "auto",
         width: 610,
         height: 60,
@@ -25,17 +28,28 @@ const Node = ({
       onClick={onClick}
     >
       <Tooltip
-        classes={{ tooltip: "tooltip" }}
+        arrow={false}
+        componentsProps={{
+          tooltip: {
+            sx: {
+              maxWidth: "max-content",
+              textTransform: "none",
+              maxHeight: 300,
+              overflow: "auto",
+              alignItems: "flex-start",
+            },
+          },
+        }}
         placement="bottom-start"
         disableInteractive={false}
         title={
-          <pre>
+          <Box sx={{ whiteSpace: "pre" }}>
             {JSON.stringify(
               nodeData.attributes,
               (key, value) => (key.startsWith("_") ? undefined : value),
               2
             )}
-          </pre>
+          </Box>
         }
       >
         <div

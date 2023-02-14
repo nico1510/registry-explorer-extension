@@ -65,7 +65,7 @@ export function App() {
       tokenResponse?.token ?? ""
     ).queryKey;
     queryClient.setQueryData(parentKey!, ((previous: Index | Manifest) => {
-      if (isIndex(previous)) {
+      if (previous && isIndex(previous)) {
         return {
           ...previous,
           manifests: previous.manifests.map((mf) => {
@@ -90,8 +90,8 @@ export function App() {
       <Typography variant="h3">Registry Explorer</Typography>
       <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
         <TextField
-          label="Repository"
-          sx={{ width: 480 }}
+          label="Resource"
+          sx={{ width: 700 }}
           disabled={!reference}
           variant="outlined"
           value={reference}
@@ -99,6 +99,7 @@ export function App() {
             setEnabled(false);
             setReference(e.target.value);
           }}
+          helperText="e.g. moby/buildkit:latest or moby/buildkit@sha256:..."
         />
         <Button variant="contained" onClick={() => setEnabled(true)}>
           Submit
