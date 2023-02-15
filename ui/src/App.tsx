@@ -6,7 +6,7 @@ import React from "react";
 import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import Graph from "./Graph";
 import { queryClient } from "./main";
-import { getIndexQuery, Index, isIndex, Manifest } from "./useIndex";
+import { getManifestQuery, Index, isIndex, Manifest } from "./useManifest";
 import { getTokenQuery } from "./useToken";
 
 export function App() {
@@ -43,7 +43,7 @@ export function App() {
   });
 
   const { data: root, isLoading: isLoadingIndex } = useQuery({
-    ...getIndexQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
+    ...getManifestQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     staleTime: Infinity,
@@ -53,13 +53,13 @@ export function App() {
 
   const onNodeClick = async (node: HierarchyPointNode<TreeNodeDatum>) => {
     const result = await queryClient.fetchQuery(
-      getIndexQuery(
+      getManifestQuery(
         repo,
         node.data.attributes?.digest as string,
         tokenResponse?.token ?? ""
       )
     );
-    const parentKey = getIndexQuery(
+    const parentKey = getManifestQuery(
       repo,
       node.parent?.data.attributes?._digestOrTag as string,
       tokenResponse?.token ?? ""

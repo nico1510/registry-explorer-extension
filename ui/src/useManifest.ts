@@ -1,14 +1,14 @@
 import { QueryOptions } from "@tanstack/react-query";
 import { proxy } from "./main";
 
-export function getIndexQuery(
+export function getManifestQuery(
   repo: string,
   digestOrTag: string,
   token: string
 ): QueryOptions<Index | Manifest> {
   return {
     queryKey: ["index", repo, digestOrTag],
-    queryFn: () => fetchindex(repo, digestOrTag, token),
+    queryFn: () => fetchManifest(repo, digestOrTag, token),
   };
 }
 
@@ -60,7 +60,7 @@ export function isIndex(
   return (indexOrManifest as Index).manifests !== undefined;
 }
 
-async function fetchindex(repo: string, digestOrTag: string, token: string) {
+async function fetchManifest(repo: string, digestOrTag: string, token: string) {
   const result = await fetch(
     `${proxy}https://registry-1.docker.io/v2/${repo}/manifests/${digestOrTag}`,
     {

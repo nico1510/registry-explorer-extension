@@ -7,7 +7,7 @@ import type {
   TreeNodeDatum,
 } from "react-d3-tree/lib/types/types/common";
 import Node from "./Node";
-import { Index, isIndex, Manifest } from "./useIndex";
+import { Index, isIndex, Manifest } from "./useManifest";
 
 function indexToTree(index: Index): RawNodeDatum {
   return {

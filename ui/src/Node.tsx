@@ -1,7 +1,7 @@
 import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
 import { SyntheticEvent } from "react";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
-import { Manifest } from "./useIndex";
+import { Manifest } from "./useManifest";
 
 const Node = ({
   nodeData,
