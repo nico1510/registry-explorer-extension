@@ -66,9 +66,18 @@ const Node = ({
           {!!config && (
             <Stack
               padding={0.5}
-              sx={{ border: `1px dashed ${color}`, position: "relative" }}
+              sx={{
+                border: `1px dashed ${color}`,
+                position: "relative",
+              }}
             >
-              <Typography sx={{ position: "absolute", top: -18 }}>
+              <Typography
+                sx={{
+                  position: "absolute",
+                  top: -14,
+                  background: backgroundColor,
+                }}
+              >
                 config
               </Typography>
               <div>digest: {config.digest}</div>
