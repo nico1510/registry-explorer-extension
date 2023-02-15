@@ -1,22 +1,36 @@
-import { QueryOptions, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import { proxy } from "./main";
 
-function getBlobQuery(
-  repo: string,
-  digest: string,
-  token: string
-): QueryOptions<ReadableStream<Uint8Array> | null> {
-  return {
-    queryKey: ["index", repo, digest],
-    queryFn: ({ signal }) => fetchBlob(repo, digest, token, signal),
-  };
+export function downloadBlob(blob: Blob, fileName = "download.x") {
+  const blobUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = blobUrl;
+  link.setAttribute("download", fileName);
+  link.click();
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function streamToBlob(stream: ReadableStream) {
+  const reader = stream.getReader();
+  let done = false;
+  const data = [];
+
+  while (!done) {
+    const result = await reader.read();
+    done = result.done;
+    if (result.value) {
+      data.push(result.value);
+    }
+  }
+
+  return new Blob(data);
 }
 
 async function fetchBlob(
   repo: string,
   digest: string,
   token: string,
-  signal: AbortSignal | undefined
+  signal: AbortSignal
 ) {
   const result = await fetch(
     `${proxy}https://registry-1.docker.io/v2/${repo}/blobs/${digest}`,
@@ -32,16 +46,85 @@ async function fetchBlob(
   return result.body;
 }
 
-export function useBlob(
-  {
-    repo,
-    digest: digest,
-    token,
-  }: { repo: string; digest: string; token: string },
-  opts?: UseQueryOptions<ReadableStream<Uint8Array> | null>
-) {
-  return useQuery({
-    ...getBlobQuery(repo, digest, token),
-    ...opts,
-  });
+export function useLayerPreview({
+  repo,
+  digest,
+  mediaType,
+  token,
+}: {
+  repo: string;
+  digest: string;
+  token: string;
+  mediaType: string;
+}) {
+  const controller = useRef<AbortController>(new AbortController());
+  useEffect(() => {
+    controller.current = new AbortController();
+    return () => controller.current?.abort();
+  }, []);
+
+  return () =>
+    downloadLayer({
+      repo,
+      digest,
+      mediaType,
+      token,
+      signal: controller.current.signal,
+    });
+}
+
+export function useDownloadLayer({
+  repo,
+  digest,
+  mediaType,
+  token,
+}: {
+  repo: string;
+  digest: string;
+  token: string;
+  mediaType: string;
+}) {
+  const controller = useRef<AbortController>(new AbortController());
+  useEffect(() => {
+    controller.current = new AbortController();
+    return () => controller.current?.abort();
+  }, []);
+
+  return () =>
+    downloadLayer({
+      repo,
+      digest,
+      mediaType,
+      token,
+      signal: controller.current.signal,
+    });
+}
+
+async function downloadLayer({
+  repo,
+  digest,
+  mediaType,
+  token,
+  signal,
+}: {
+  repo: string;
+  digest: string;
+  token: string;
+  mediaType: string;
+  signal: AbortSignal;
+}) {
+  const blobStream = await fetchBlob(repo, digest, token, signal);
+  if (blobStream) {
+    const blob = await streamToBlob(blobStream);
+    downloadBlob(
+      blob,
+      `${digest}${
+        mediaType.endsWith("gzip")
+          ? ".tar.gzip"
+          : mediaType.endsWith("json")
+          ? ".json"
+          : ""
+      }`
+    );
+  }
 }

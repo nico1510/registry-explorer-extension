@@ -36,8 +36,9 @@ export function App() {
   }
 
   const [enabled, setEnabled] = React.useState(false);
-  const [blobNode, setBlobNode] =
-    React.useState<HierarchyPointNode<TreeNodeDatum> | null>(null);
+  const [blobNode, setBlobNode] = React.useState<
+    Manifest["layers"][number] | null
+  >(null);
 
   const { data: tokenResponse, isLoading: isLoadingToken } = useToken(repo, {
     enabled: enabled && !!repo && !!digestOrTag,
@@ -80,46 +81,55 @@ export function App() {
     }) as any);
   }
 
-  const onNodeClick = async (node: HierarchyPointNode<TreeNodeDatum>) => {
+  const onNodeClick = (node: HierarchyPointNode<TreeNodeDatum>) => {
     const digest = node.data.attributes?.digest as any as string;
     const isLayer = node.data.attributes?._isLayer;
-    await (isLayer ? setBlobNode(node) : onManifestNodeClick(digest));
+    isLayer
+      ? setBlobNode(
+          JSON.parse(
+            JSON.stringify(
+              node.data.attributes as any as Manifest["layers"][number]
+            )
+          )
+        )
+      : onManifestNodeClick(digest);
   };
 
   return (
-    <Stack height="100%">
-      {blobNode && (
+    <>
+      <Stack height="100%">
+        <Typography variant="h3">Registry Explorer</Typography>
+        <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
+          <TextField
+            label="Resource"
+            sx={{ width: 700 }}
+            disabled={!reference}
+            variant="outlined"
+            value={reference}
+            onChange={(e) => {
+              setEnabled(false);
+              setReference(e.target.value);
+            }}
+            helperText="e.g. moby/buildkit:latest or moby/buildkit@sha256:..."
+          />
+          <Button
+            disabled={enabled && (isLoadingIndex || isLoadingToken)}
+            variant="contained"
+            onClick={() => setEnabled(true)}
+          >
+            Submit
+          </Button>
+        </Stack>
+        {root && <Graph index={root} onNodeClick={onNodeClick} />}
+      </Stack>
+      {!!blobNode && (
         <BlobDialog
-          node={blobNode}
           repo={repo}
-          closeDialog={() => {
-            setBlobNode(null);
-          }}
+          digest={blobNode.digest}
+          mediaType={blobNode.mediaType}
+          closeDialog={() => setBlobNode(null)}
         />
       )}
-      <Typography variant="h3">Registry Explorer</Typography>
-      <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
-        <TextField
-          label="Resource"
-          sx={{ width: 700 }}
-          disabled={!reference}
-          variant="outlined"
-          value={reference}
-          onChange={(e) => {
-            setEnabled(false);
-            setReference(e.target.value);
-          }}
-          helperText="e.g. moby/buildkit:latest or moby/buildkit@sha256:..."
-        />
-        <Button
-          disabled={enabled && (isLoadingIndex || isLoadingToken)}
-          variant="contained"
-          onClick={() => setEnabled(true)}
-        >
-          Submit
-        </Button>
-      </Stack>
-      {root && <Graph index={root} onNodeClick={onNodeClick} />}
-    </Stack>
+    </>
   );
 }
