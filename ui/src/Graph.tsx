@@ -38,6 +38,7 @@ function manifestToTree(manifest: Manifest): RawNodeDatum {
           name: digest,
           attributes: {
             _isLayer: true,
+            digest,
             ...child,
           },
         } as any)

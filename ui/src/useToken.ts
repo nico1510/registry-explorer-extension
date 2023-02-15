@@ -1,4 +1,4 @@
-import { QueryOptions } from "@tanstack/react-query";
+import { QueryOptions, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { proxy } from "./main";
 
 export interface TokenResponse {
@@ -19,4 +19,15 @@ export function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
         )
       ).json(),
   };
+}
+
+export function useToken(repo: string, opts?: UseQueryOptions<TokenResponse>) {
+  return useQuery({
+    ...getTokenQuery(repo),
+    refetchOnMount: true,
+    refetchIntervalInBackground: true,
+    staleTime: 1000 * 289,
+    refetchInterval: 1000 * 290,
+    ...opts,
+  });
 }

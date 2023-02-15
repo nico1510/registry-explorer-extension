@@ -4,11 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import React from "react";
 import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
+import BlobDialog from "./BlobDialog";
 import Graph from "./Graph";
 import { queryClient } from "./main";
 import { useLocalStorage } from "./useLocalStorage";
 import { getManifestQuery, Index, isIndex, Manifest } from "./useManifest";
-import { getTokenQuery } from "./useToken";
+import { useToken } from "./useToken";
 
 export function App() {
   const [reference, setReference] = useLocalStorage(
@@ -35,14 +36,10 @@ export function App() {
   }
 
   const [enabled, setEnabled] = React.useState(false);
+  const [blobNode, setBlobNode] =
+    React.useState<HierarchyPointNode<TreeNodeDatum> | null>(null);
 
-  const { data: tokenResponse, isLoading: isLoadingToken } = useQuery({
-    ...getTokenQuery(repo),
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    retry: false,
-    staleTime: 1000 * 289,
-    refetchInterval: 1000 * 290,
+  const { data: tokenResponse, isLoading: isLoadingToken } = useToken(repo, {
     enabled: enabled && !!repo && !!digestOrTag,
   });
 
@@ -55,17 +52,13 @@ export function App() {
     enabled: enabled && !!tokenResponse,
   });
 
-  const onNodeClick = async (node: HierarchyPointNode<TreeNodeDatum>) => {
+  async function onManifestNodeClick(digest: string) {
     const result = await queryClient.fetchQuery(
-      getManifestQuery(
-        repo,
-        node.data.attributes?.digest as string,
-        tokenResponse?.token ?? ""
-      )
+      getManifestQuery(repo, digest, tokenResponse?.token ?? "")
     );
     const parentKey = getManifestQuery(
       repo,
-      node.parent?.data.attributes?._digestOrTag as string,
+      digestOrTag,
       tokenResponse?.token ?? ""
     ).queryKey;
     queryClient.setQueryData(parentKey!, ((previous: Index | Manifest) => {
@@ -73,7 +66,7 @@ export function App() {
         return {
           ...previous,
           manifests: previous.manifests.map((mf) => {
-            if (mf.digest === node.data.attributes?.digest) {
+            if (mf.digest === digest) {
               return {
                 ...mf,
                 manifest: result,
@@ -85,10 +78,25 @@ export function App() {
       }
       return undefined;
     }) as any);
+  }
+
+  const onNodeClick = async (node: HierarchyPointNode<TreeNodeDatum>) => {
+    const digest = node.data.attributes?.digest as any as string;
+    const isLayer = node.data.attributes?._isLayer;
+    await (isLayer ? setBlobNode(node) : onManifestNodeClick(digest));
   };
 
   return (
     <Stack height="100%">
+      {blobNode && (
+        <BlobDialog
+          node={blobNode}
+          repo={repo}
+          closeDialog={() => {
+            setBlobNode(null);
+          }}
+        />
+      )}
       <Typography variant="h3">Registry Explorer</Typography>
       <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
         <TextField
