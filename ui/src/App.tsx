@@ -32,7 +32,7 @@ export function App() {
 
   const [enabled, setEnabled] = React.useState(false);
 
-  const { data: tokenResponse } = useQuery({
+  const { data: tokenResponse, isLoading: isLoadingToken } = useQuery({
     ...getTokenQuery(repo),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -42,7 +42,7 @@ export function App() {
     enabled: enabled && !!repo && !!digestOrTag,
   });
 
-  const { data: root } = useQuery({
+  const { data: root, isLoading: isLoadingIndex } = useQuery({
     ...getIndexQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -81,8 +81,6 @@ export function App() {
       }
       return undefined;
     }) as any);
-
-    console.log(result);
   };
 
   return (
@@ -101,7 +99,11 @@ export function App() {
           }}
           helperText="e.g. moby/buildkit:latest or moby/buildkit@sha256:..."
         />
-        <Button variant="contained" onClick={() => setEnabled(true)}>
+        <Button
+          disabled={enabled && (isLoadingIndex || isLoadingToken)}
+          variant="contained"
+          onClick={() => setEnabled(true)}
+        >
           Submit
         </Button>
       </Stack>
