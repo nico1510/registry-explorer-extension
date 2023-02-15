@@ -1,6 +1,6 @@
-import { Box, useTheme } from "@mui/material";
+import { css } from "@emotion/css";
+import { useTheme } from "@mui/material";
 import type { HierarchyPointNode } from "d3-hierarchy";
-import React from "react";
 import Tree from "react-d3-tree";
 import type {
   RawNodeDatum,
@@ -8,7 +8,6 @@ import type {
 } from "react-d3-tree/lib/types/types/common";
 import Node from "./Node";
 import { Index, isIndex, Manifest } from "./useIndex";
-import { css } from "@emotion/css";
 
 function indexToTree(index: Index): RawNodeDatum {
   return {
