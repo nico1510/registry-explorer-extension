@@ -61,8 +61,8 @@ const Node = ({
             alignItems: "center",
           }}
         >
-          <strong>digest: {nodeData.name}</strong>
-          media_type: {nodeData.attributes?.mediaType}
+          <strong>digest: {nodeData.name ?? "N/A"}</strong>
+          media_type: {nodeData.attributes?.mediaType ?? "N/A"}
           {!!config && (
             <Stack
               padding={0.5}
@@ -80,8 +80,8 @@ const Node = ({
               >
                 config
               </Typography>
-              <div>digest: {config.digest}</div>
-              <div>media_type: {config.mediaType}</div>
+              <div>digest: {config.digest ?? "N/A"}</div>
+              <div>media_type: {config.mediaType ?? "N/A"}</div>
             </Stack>
           )}
         </div>
