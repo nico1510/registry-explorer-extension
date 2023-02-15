@@ -44,13 +44,11 @@ export default function BlobDialog({
           >
             <CloseIcon />
           </IconButton>
-          <Typography
-            sx={{ ml: 2, flex: 1 }}
-            variant="h6"
-            component="div"
-          ></Typography>
+          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+            Layer Content Preview {digest}
+          </Typography>
           <Button color="inherit" onClick={() => downloadLayer()}>
-            Download
+            Download Layer
           </Button>
         </Toolbar>
       </AppBar>
