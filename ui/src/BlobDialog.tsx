@@ -7,8 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { EmptyState } from "./EmptyState";
-import { useDownloadLayer } from "./useBlob";
-import { useToken } from "./useToken";
+import { useDownloadLayer, useLayerPreview } from "./useBlob";
 
 export default function BlobDialog({
   repo,
@@ -21,12 +20,15 @@ export default function BlobDialog({
   repo: string;
   closeDialog: () => void;
 }) {
-  const { data: tokenResponse, isLoading: isLoadingToken } = useToken(repo);
-
   const downloadLayer = useDownloadLayer({
     repo,
     digest,
-    token: tokenResponse?.token ?? "",
+    mediaType,
+  });
+
+  const preview = useLayerPreview({
+    repo,
+    digest,
     mediaType,
   });
 
@@ -53,14 +55,14 @@ export default function BlobDialog({
         </Toolbar>
       </AppBar>
       <DialogContent>
-        {isLoadingToken ? (
+        {!preview ? (
           <EmptyState
             sx={{ height: "100%", justifyContent: "center" }}
             title={`Loading ${digest} ...`}
             image={<CircularProgress />}
           ></EmptyState>
         ) : (
-          "text"
+          <pre>{preview?.text ?? JSON.stringify(preview.json)}</pre>
         )}
       </DialogContent>
     </Dialog>
