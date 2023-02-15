@@ -6,11 +6,15 @@ import React from "react";
 import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import Graph from "./Graph";
 import { queryClient } from "./main";
+import { useLocalStorage } from "./useLocalStorage";
 import { getManifestQuery, Index, isIndex, Manifest } from "./useManifest";
 import { getTokenQuery } from "./useToken";
 
 export function App() {
-  const [reference, setReference] = React.useState("moby/buildkit:latest");
+  const [reference, setReference] = useLocalStorage(
+    "reference",
+    "moby/buildkit:latest"
+  );
   let repo = "";
   let digestOrTag = "";
 
