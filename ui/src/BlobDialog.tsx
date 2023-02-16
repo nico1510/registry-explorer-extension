@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { EmptyState } from "./EmptyState";
+import { JsonViewer } from "./JsonViewer";
 import { useDownloadLayer, useLayerPreview } from "./useBlob";
 
 export default function BlobDialog({
@@ -53,15 +54,15 @@ export default function BlobDialog({
         </Toolbar>
       </AppBar>
       <DialogContent>
-        {!preview ? (
+        {!preview && (
           <EmptyState
             sx={{ height: "100%", justifyContent: "center" }}
             title={`Loading ${digest} ...`}
             image={<CircularProgress />}
           ></EmptyState>
-        ) : (
-          <pre>{preview?.text ?? JSON.stringify(preview.json)}</pre>
         )}
+        {!!preview?.text && <pre>{preview.text}</pre>}
+        {!!preview?.json && <JsonViewer json={preview.json} />}
       </DialogContent>
     </Dialog>
   );
