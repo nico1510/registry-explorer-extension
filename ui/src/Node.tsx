@@ -27,7 +27,6 @@ const Node = ({
         height: config ? 100 : 60,
       }}
       y={-30}
-      onClick={onClick}
     >
       <Tooltip
         arrow={false}
@@ -54,12 +53,13 @@ const Node = ({
           </Box>
         }
       >
-        <div
-          style={{
+        <Box
+          sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
           }}
+          onClick={onClick}
         >
           <strong>digest: {nodeData.name ?? "N/A"}</strong>
           media_type: {nodeData.attributes?.mediaType ?? "N/A"}
@@ -84,7 +84,7 @@ const Node = ({
               <div>media_type: {config.mediaType ?? "N/A"}</div>
             </Stack>
           )}
-        </div>
+        </Box>
       </Tooltip>
     </foreignObject>
   );
