@@ -1,14 +1,14 @@
 import { QueryOptions, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { proxy } from "./main";
 
-export interface TokenResponse {
+interface TokenResponse {
   token: string;
   access_token: string;
   expires_in: number;
   issued_at: string;
 }
 
-export function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
+function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
   const tokenPath = `/token/${repo}`;
   return {
     queryKey: [tokenPath],

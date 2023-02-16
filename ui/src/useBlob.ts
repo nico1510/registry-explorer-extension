@@ -31,7 +31,7 @@ async function fetchBlob(
   repo: string,
   digest: string,
   token: string,
-  signal: AbortSignal
+  signal?: AbortSignal
 ) {
   const result = await fetch(
     `${proxy}https://registry-1.docker.io/v2/${repo}/blobs/${digest}`,
@@ -58,7 +58,7 @@ export function useLayerPreview({
 }) {
   const { data: tokenResponse } = useToken(repo);
 
-  const controller = useRef<AbortController>(new AbortController());
+  const controller = useRef<AbortController>();
 
   const [preview, setPreview] = useState<{
     text: string | null;
@@ -110,7 +110,7 @@ export function useLayerPreview({
       }
     });
     return () => controller.current?.abort();
-  }, [repo, digest, mediaType, tokenResponse]);
+  }, [repo, digest, mediaType]); // we don't want to abort the request if the token changes so we don't add it to the deps
 
   return preview;
 }
@@ -126,7 +126,7 @@ export function useDownloadLayer({
 }) {
   const { data: tokenResponse } = useToken(repo);
 
-  const controller = useRef<AbortController>(new AbortController());
+  const controller = useRef<AbortController>();
   useEffect(() => {
     controller.current = new AbortController();
     return () => controller.current?.abort();
@@ -138,7 +138,7 @@ export function useDownloadLayer({
       digest,
       mediaType,
       token: tokenResponse?.token ?? "",
-      signal: controller.current.signal,
+      signal: controller.current?.signal,
     });
 }
 
@@ -153,7 +153,7 @@ async function downloadLayer({
   digest: string;
   token: string;
   mediaType: string;
-  signal: AbortSignal;
+  signal?: AbortSignal;
 }) {
   const blobStream = await fetchBlob(repo, digest, token, signal);
   if (blobStream) {
