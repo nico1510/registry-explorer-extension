@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { proxy } from "./main";
 import { useToken } from "./useToken";
 
-export function downloadBlob(blob: Blob, fileName = "download.x") {
+function downloadBlob(blob: Blob, fileName = "download.x") {
   const blobUrl = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = blobUrl;
@@ -11,7 +11,7 @@ export function downloadBlob(blob: Blob, fileName = "download.x") {
   window.URL.revokeObjectURL(blobUrl);
 }
 
-export async function streamToBlob(stream: ReadableStream) {
+async function streamToBlob(stream: ReadableStream) {
   const reader = stream.getReader();
   let done = false;
   const data = [];
