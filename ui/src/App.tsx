@@ -8,7 +8,13 @@ import BlobDialog from "./BlobDialog";
 import Graph from "./Graph";
 import { queryClient } from "./main";
 import { useLocalStorage } from "./useLocalStorage";
-import { getManifestQuery, Index, isIndex, Manifest } from "./useManifest";
+import {
+  getManifestQuery,
+  Index,
+  isIndex,
+  LayerOrBlob,
+  Manifest,
+} from "./useManifest";
 import { useToken } from "./useToken";
 
 export function App() {
@@ -36,9 +42,7 @@ export function App() {
   }
 
   const [enabled, setEnabled] = React.useState(false);
-  const [blobNode, setBlobNode] = React.useState<
-    Manifest["layers"][number] | null
-  >(null);
+  const [blobNode, setBlobNode] = React.useState<LayerOrBlob | null>(null);
 
   const { data: tokenResponse, isLoading: isLoadingToken } = useToken(repo, {
     enabled: enabled && !!repo && !!digestOrTag,
@@ -86,11 +90,7 @@ export function App() {
     const isLayer = node.data.attributes?._isLayer;
     isLayer
       ? setBlobNode(
-          JSON.parse(
-            JSON.stringify(
-              node.data.attributes as any as Manifest["layers"][number]
-            )
-          )
+          JSON.parse(JSON.stringify(node.data.attributes as any as LayerOrBlob))
         )
       : onManifestNodeClick(digest);
   };

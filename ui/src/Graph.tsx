@@ -32,7 +32,7 @@ function manifestToTree(manifest: Manifest): RawNodeDatum {
   return {
     name: manifest.digest,
     attributes: manifest as any,
-    children: manifest.layers?.map(
+    children: [...(manifest.layers ?? []), ...(manifest.blobs ?? [])].map(
       ({ digest, ...child }) =>
         ({
           name: digest,

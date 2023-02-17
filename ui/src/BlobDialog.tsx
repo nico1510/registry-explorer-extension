@@ -48,7 +48,25 @@ export default function BlobDialog({
           <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
             Layer Content Preview {digest}
           </Typography>
-          <Button color="inherit" onClick={() => downloadLayer()}>
+          <Button
+            color="inherit"
+            onClick={async () => {
+              const ddClient = (
+                await import("@docker/extension-api-client")
+              ).createDockerDesktopClient();
+              const res = await ddClient.docker.cli.exec("run", [
+                "--rm",
+                "curlimages/curl:7.87.0",
+                "curl",
+                "-sL",
+                "https://github.com/docker/compose/archive/refs/tags/v2.16.0.tar.gz",
+                "|",
+                "tar",
+                "-tzv",
+              ]);
+              console.log(res);
+            }}
+          >
             Download Layer
           </Button>
         </Toolbar>

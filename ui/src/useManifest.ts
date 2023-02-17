@@ -12,6 +12,15 @@ export function getManifestQuery(
   };
 }
 
+export interface LayerOrBlob {
+  mediaType: string;
+  size: number;
+  digest: string;
+  annotations?: {
+    [key: string]: string;
+  };
+}
+
 export interface Manifest {
   schemaVersion: number;
   _digestOrTag: string;
@@ -22,14 +31,8 @@ export interface Manifest {
     size: number;
     digest: string;
   };
-  layers: Array<{
-    mediaType: string;
-    size: number;
-    digest: string;
-    annotations?: {
-      [key: string]: string;
-    };
-  }>;
+  layers: Array<LayerOrBlob>;
+  blobs?: Array<LayerOrBlob>;
 }
 
 export interface Index {
