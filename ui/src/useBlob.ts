@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { proxy } from "./main";
+import { TarArchiveStreamTransformer } from "./TarArchiveStreamTransformer";
 import { useToken } from "./useToken";
 
 function downloadBlob(blob: Blob, fileName = "download.x") {
@@ -85,12 +86,34 @@ export function useLayerPreview({
           console.error(error);
         }
         setPreview({ text: !json ? text : null, json });
+      } else if (mediaType.endsWith("tar+gzip")) {
+        const transformer = new TransformStream(
+          new TarArchiveStreamTransformer()
+        );
+
+        const reader = stream
+          // @ts-expect-error
+          ?.pipeThrough(new DecompressionStream("gzip"))
+          .pipeThrough(transformer)
+          .getReader();
+
+        let done = false;
+        let data = "";
+
+        while (!done) {
+          const result = await reader.read();
+          done = result.done;
+          if (result.value) {
+            data += result.value.name + ", " + result.value.size + "\n";
+          }
+        }
+
+        setPreview({
+          text: data,
+          json: null,
+        });
       } else {
-        const unzippedStream = mediaType.endsWith("gzip")
-          ? //@ts-expect-error
-            stream.pipeThrough(new DecompressionStream("gzip"))
-          : stream;
-        const textStream = unzippedStream.pipeThrough(new TextDecoderStream());
+        const textStream = stream.pipeThrough(new TextDecoderStream());
         const reader = textStream.getReader();
         let done = false;
         let data = "";
