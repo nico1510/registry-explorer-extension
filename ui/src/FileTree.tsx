@@ -99,12 +99,14 @@ export function FileTree({ files }: { files: FileInfo[] }) {
   const fileTree = React.useMemo(() => createFileTree(files), [files]);
   return (
     <TreeView
-      defaultExpanded={["root"]}
+      defaultExpanded={fileTree.children?.map((c) => c.path)}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}
       defaultEndIcon={<div style={{ width: 24 }} />}
     >
-      <Directory file={fileTree} />
+      {fileTree.children?.map((child) => (
+        <Directory key={child.path} file={child} />
+      ))}
     </TreeView>
   );
 }
