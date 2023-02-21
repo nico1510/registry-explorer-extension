@@ -99,7 +99,7 @@ export function App() {
     <>
       <Stack height="100%">
         <Typography variant="h3">Registry Explorer</Typography>
-        <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
+        <Stack direction="row" alignItems="baseline" spacing={2} sx={{ mt: 4 }}>
           <Stack direction="column" alignItems="start">
             <TextField
               label="Resource"
@@ -112,7 +112,7 @@ export function App() {
                 setReference(e.target.value);
               }}
             />
-            <FormHelperText>
+            <FormHelperText sx={{ ml: 1 }}>
               e.g. moby/buildkit:latest or moby/buildkit@sha256:...
             </FormHelperText>
           </Stack>

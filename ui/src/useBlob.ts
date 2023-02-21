@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { proxy } from "./main";
-import { TarArchiveStreamTransformer } from "./TarArchiveStreamTransformer";
+import {
+  FileInfo,
+  TarArchiveStreamTransformer,
+} from "./TarArchiveStreamTransformer";
 import { useToken } from "./useToken";
 
 function downloadBlob(blob: Blob, fileName = "download.x") {
@@ -64,6 +67,7 @@ export function useLayerPreview({
   const [preview, setPreview] = useState<{
     text: string | null;
     json: unknown | null;
+    files: FileInfo[] | null;
   } | null>(null);
 
   useEffect(() => {
@@ -85,7 +89,7 @@ export function useLayerPreview({
         } catch (error: unknown) {
           console.error(error);
         }
-        setPreview({ text: !json ? text : null, json });
+        setPreview({ text: !json ? text : null, json, files: null });
       } else if (mediaType.endsWith("tar+gzip")) {
         const transformer = new TransformStream(
           new TarArchiveStreamTransformer()
@@ -98,19 +102,18 @@ export function useLayerPreview({
           .getReader();
 
         let done = false;
-        let data = "";
+        let files: FileInfo[] = [];
 
         while (!done) {
           const result = await reader.read();
           done = result.done;
-          if (result.value) {
-            data += result.value.name + ", " + result.value.size + "\n";
-          }
+          if (result.value) files.push(result.value);
         }
 
         setPreview({
-          text: data,
+          text: null,
           json: null,
+          files,
         });
       } else {
         const textStream = stream.pipeThrough(new TextDecoderStream());
@@ -129,6 +132,7 @@ export function useLayerPreview({
         setPreview({
           text: data,
           json: null,
+          files: null,
         });
       }
     });

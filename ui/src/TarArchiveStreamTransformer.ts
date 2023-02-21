@@ -1,5 +1,5 @@
-interface FileInfo {
-  name: string;
+export interface FileInfo {
+  path: string;
   type: string;
   size: number;
 }
@@ -76,7 +76,7 @@ export class TarArchiveStreamTransformer {
         this.totalOffset += 512;
       }
 
-      controller.enqueue({ name, type, size });
+      controller.enqueue({ path: name, type, size });
     }
 
     // we pretend that we have never read the remaining chunk if there is one (it will be read in the next iteration)

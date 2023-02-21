@@ -7,6 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { EmptyState } from "./EmptyState";
+import { FileTree } from "./FileTree";
 import { JsonViewer } from "./JsonViewer";
 import { useDownloadLayer, useLayerPreview } from "./useBlob";
 
@@ -68,6 +69,7 @@ export default function BlobDialog({
         )}
         {!!preview?.text && <pre>{preview.text}</pre>}
         {!!preview?.json && <JsonViewer json={preview.json} />}
+        {!!preview?.files && <FileTree files={preview.files} />}
       </DialogContent>
     </Dialog>
   );
