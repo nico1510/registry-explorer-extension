@@ -1,4 +1,4 @@
-import { Stack, TextField, Typography } from "@mui/material";
+import { FormHelperText, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useQuery } from "@tanstack/react-query";
 import type { HierarchyPointNode } from "d3-hierarchy";
@@ -100,18 +100,22 @@ export function App() {
       <Stack height="100%">
         <Typography variant="h3">Registry Explorer</Typography>
         <Stack direction="row" alignItems="start" spacing={2} sx={{ mt: 4 }}>
-          <TextField
-            label="Resource"
-            sx={{ width: 700 }}
-            disabled={!reference}
-            variant="outlined"
-            value={reference}
-            onChange={(e) => {
-              setEnabled(false);
-              setReference(e.target.value);
-            }}
-            helperText="e.g. moby/buildkit:latest or moby/buildkit@sha256:..."
-          />
+          <Stack direction="column" alignItems="start">
+            <TextField
+              label="Resource"
+              sx={{ width: 700 }}
+              disabled={!reference}
+              variant="outlined"
+              value={reference}
+              onChange={(e) => {
+                setEnabled(false);
+                setReference(e.target.value);
+              }}
+            />
+            <FormHelperText>
+              e.g. moby/buildkit:latest or moby/buildkit@sha256:...
+            </FormHelperText>
+          </Stack>
           <Button
             disabled={enabled && (isLoadingIndex || isLoadingToken)}
             variant="contained"

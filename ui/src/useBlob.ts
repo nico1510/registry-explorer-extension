@@ -184,7 +184,7 @@ async function downloadLayer({
     downloadBlob(
       blob,
       `${digest}${
-        mediaType.endsWith("gzip")
+        mediaType.endsWith("tar+gzip")
           ? ".tar.gzip"
           : mediaType.endsWith("json")
           ? ".json"
