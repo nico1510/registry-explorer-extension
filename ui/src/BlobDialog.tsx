@@ -6,6 +6,7 @@ import Dialog from "@mui/material/Dialog";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { Stack } from "@mui/system";
 import { EmptyState } from "./EmptyState";
 import { FileTree } from "./FileTree";
 import { JsonViewer } from "./JsonViewer";
@@ -37,24 +38,37 @@ export default function BlobDialog({
   return (
     <Dialog fullScreen open onClose={closeDialog}>
       <AppBar
+        variant="outlined"
+        enableColorOnDark
+        elevation={0}
         sx={(theme) => ({
-          background: theme.palette.primary.main,
           position: "relative",
+          background: theme.palette.docker.grey[100],
+          color: theme.palette.text.secondary,
+          border: "none",
         })}
       >
-        <Toolbar>
-          <IconButton
-            edge="start"
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Stack direction="row" alignItems="center">
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={closeDialog}
+              aria-label="close"
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
+              Layer Content Preview
+            </Typography>
+            <Typography sx={{ ml: 2, flex: 1 }}>{digest}</Typography>
+          </Stack>
+
+          <Button
+            variant="outlined"
             color="inherit"
-            onClick={closeDialog}
-            aria-label="close"
+            onClick={() => downloadLayer()}
           >
-            <CloseIcon />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            Layer Content Preview {digest}
-          </Typography>
-          <Button color="inherit" onClick={() => downloadLayer()}>
             Download Layer
           </Button>
         </Toolbar>
