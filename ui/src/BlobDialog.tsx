@@ -1,5 +1,5 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { CircularProgress, DialogContent } from "@mui/material";
+import { CircularProgress, DialogContent, Tooltip } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -11,6 +11,7 @@ import { EmptyState } from "./EmptyState";
 import { FileTree } from "./FileTree";
 import { JsonViewer } from "./JsonViewer";
 import { useDownloadLayer, useLayerPreview } from "./useBlob";
+import { useIsLoggedIn } from "./useIsLoggedIn";
 
 export default function BlobDialog({
   repo,
@@ -34,6 +35,8 @@ export default function BlobDialog({
     digest,
     mediaType,
   });
+
+  const isLoggedIn = useIsLoggedIn();
 
   return (
     <Dialog fullScreen open onClose={closeDialog}>
@@ -64,13 +67,18 @@ export default function BlobDialog({
             <Typography sx={{ ml: 2, flex: 1 }}>{digest}</Typography>
           </Stack>
 
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={() => downloadLayer()}
-          >
-            Download Layer
-          </Button>
+          <Tooltip title={isLoggedIn ? "" : "Sign in to Download"}>
+            <span>
+              <Button
+                variant="outlined"
+                color="inherit"
+                disabled={!isLoggedIn}
+                onClick={() => downloadLayer()}
+              >
+                Download Layer
+              </Button>
+            </span>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <DialogContent>
