@@ -99,7 +99,18 @@ export function App() {
     <>
       <Stack height="100%">
         <Typography variant="h3">Registry Explorer</Typography>
-        <Stack direction="row" alignItems="baseline" spacing={2} sx={{ mt: 4 }}>
+        <Stack
+          direction="row"
+          alignItems="baseline"
+          spacing={2}
+          sx={(theme) => ({
+            mt: 4,
+            position: "fixed",
+            p: 2,
+            background: `${theme.palette.background.paper}CC`,
+            borderRadius: 2,
+          })}
+        >
           <Stack direction="column" alignItems="start">
             <TextField
               label="Resource"

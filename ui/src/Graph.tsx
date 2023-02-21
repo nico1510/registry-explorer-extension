@@ -77,7 +77,7 @@ export default function Graph({
       zoom={0.7}
       data={data}
       separation={{ siblings: 2, nonSiblings: 3 }}
-      nodeSize={{ x: 1400, y: 90 }}
+      nodeSize={{ x: 1000, y: 90 }}
     />
   );
 }
