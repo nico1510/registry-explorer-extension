@@ -6,7 +6,7 @@ import {
 } from "./TarArchiveStreamTransformer";
 import { useToken } from "./useToken";
 
-function downloadBlob(blob: Blob, fileName = "download.x") {
+function downloadBlob(blob: Blob, fileName: string) {
   const blobUrl = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = blobUrl;
@@ -190,8 +190,8 @@ async function downloadLayer({
       `${digest}${
         mediaType.endsWith("tar+gzip")
           ? ".tar.gzip"
-          : mediaType.endsWith("json")
-          ? ".json"
+          : mediaType.split("+").length > 1
+          ? `.${mediaType.split("+").at(-1)}`
           : ""
       }`
     );
