@@ -62,7 +62,7 @@ export default function BlobDialog({
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
-              Layer Content Preview
+              {`Layer Content ${preview?.text ? "Preview" : ""}`}
             </Typography>
             <Typography sx={{ ml: 2, flex: 1 }}>{digest}</Typography>
           </Stack>

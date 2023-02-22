@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import * as React from "react";
 import { FileInfo } from "./TarArchiveStreamTransformer";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import prettyBytes from "pretty-bytes";
 
 type StyledTreeItemProps = TreeItemProps & {
   bgColor?: string;
@@ -84,6 +85,7 @@ function Directory({ file }: { file: FileTree }) {
       }}
       nodeId={file.path}
       labelText={file.name}
+      labelInfo={file.type !== "directory" ? prettyBytes(file.size) : undefined}
       labelIcon={file.type === "directory" ? FolderIcon : InsertDriveFileIcon}
     >
       {!file.children?.length

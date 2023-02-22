@@ -68,6 +68,7 @@ export function useLayerPreview({
     text: string | null;
     json: unknown | null;
     files: FileInfo[] | null;
+    isLoading?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -103,17 +104,28 @@ export function useLayerPreview({
 
         let done = false;
         let files: FileInfo[] = [];
+        let index = 0;
 
         while (!done) {
           const result = await reader.read();
           done = result.done;
           if (result.value) files.push(result.value);
+          if (index < 10 || index % 20 === 0) {
+            setPreview({
+              text: null,
+              json: null,
+              files: [...files],
+              isLoading: true,
+            });
+          }
+          index++;
         }
 
         setPreview({
           text: null,
           json: null,
           files,
+          isLoading: false,
         });
       } else {
         const textStream = stream.pipeThrough(new TextDecoderStream());
