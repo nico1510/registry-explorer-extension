@@ -23,5 +23,5 @@ LABEL org.opencontainers.image.title="Registry Explorer" \
 
 COPY docker-compose.yaml .
 COPY metadata.json .
-COPY docker.svg .
+COPY icon.svg .
 COPY --from=client-builder /ui/build ui
