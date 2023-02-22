@@ -16,8 +16,9 @@ import { Stack } from "@mui/system";
 import { EmptyState } from "./EmptyState";
 import { FileTree } from "./FileTree";
 import { JsonViewer } from "./JsonViewer";
-import { useDownloadLayer, useLayerPreview } from "./useBlob";
+import { useDownloadLayer } from "./useDownloadLayer";
 import { useIsLoggedIn } from "./useIsLoggedIn";
+import { useLayerContent } from "./useLayerContent";
 
 function LinearProgressWithLabel({ value }: { value: number }) {
   return (
@@ -60,7 +61,7 @@ export default function BlobDialog({
     mediaType,
   });
 
-  const preview = useLayerPreview({
+  const preview = useLayerContent({
     repo,
     digest,
     mediaType,
