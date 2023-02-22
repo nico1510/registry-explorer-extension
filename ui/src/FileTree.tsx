@@ -1,16 +1,16 @@
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import FolderIcon from "@mui/icons-material/Folder";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import TreeItem, { treeItemClasses, TreeItemProps } from "@mui/lab/TreeItem";
 import TreeView from "@mui/lab/TreeView";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import { SvgIconProps } from "@mui/material/SvgIcon";
 import Typography from "@mui/material/Typography";
+import prettyBytes from "pretty-bytes";
 import * as React from "react";
 import { FileInfo } from "./TarArchiveStreamTransformer";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import prettyBytes from "pretty-bytes";
 
 type StyledTreeItemProps = TreeItemProps & {
   bgColor?: string;
@@ -101,6 +101,7 @@ export function FileTree({ files }: { files: FileInfo[] }) {
   const fileTree = React.useMemo(() => createFileTree(files), [files]);
   return (
     <TreeView
+      sx={{ mt: 4 }}
       defaultExpanded={fileTree.children?.map((c) => c.path)}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}

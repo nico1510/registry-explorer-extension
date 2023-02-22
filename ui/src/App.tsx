@@ -115,7 +115,6 @@ export function App() {
             <TextField
               label="Resource"
               sx={{ width: 700 }}
-              disabled={!reference}
               variant="outlined"
               value={reference}
               onChange={(e) => {
@@ -142,6 +141,7 @@ export function App() {
           repo={repo}
           digest={blobNode.digest}
           mediaType={blobNode.mediaType}
+          size={blobNode.size}
           closeDialog={() => setBlobNode(null)}
         />
       )}

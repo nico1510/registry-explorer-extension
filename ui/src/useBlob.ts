@@ -1,3 +1,4 @@
+import throttle from "lodash/throttle";
 import { useEffect, useRef, useState } from "react";
 import { proxy } from "./main";
 import {
@@ -55,21 +56,26 @@ export function useLayerPreview({
   repo,
   digest,
   mediaType,
+  size,
 }: {
   repo: string;
   digest: string;
   mediaType: string;
+  size: number;
 }) {
   const { data: tokenResponse } = useToken(repo);
 
   const controller = useRef<AbortController>();
 
-  const [preview, setPreview] = useState<{
-    text: string | null;
-    json: unknown | null;
-    files: FileInfo[] | null;
-    isLoading?: boolean;
-  } | null>(null);
+  const [preview, setPreview] = useState<
+    | undefined
+    | {
+        text?: string;
+        json?: unknown;
+        files?: FileInfo[];
+        progress?: number;
+      }
+  >(undefined);
 
   useEffect(() => {
     controller.current = new AbortController();
@@ -79,7 +85,7 @@ export function useLayerPreview({
       tokenResponse?.token ?? "",
       controller.current.signal
     ).then(async (stream) => {
-      if (!stream) return setPreview(null);
+      if (!stream) return setPreview(undefined);
 
       if (mediaType.endsWith("json")) {
         const blob = await streamToBlob(stream);
@@ -90,15 +96,29 @@ export function useLayerPreview({
         } catch (error: unknown) {
           console.error(error);
         }
-        setPreview({ text: !json ? text : null, json, files: null });
+        setPreview({ text: !json ? text : undefined, json, files: undefined });
       } else if (mediaType.endsWith("tar+gzip")) {
         const transformer = new TransformStream(
           new TarArchiveStreamTransformer()
         );
 
+        let progress = 0;
+        const throttledSetPreview = throttle(setPreview, 1000);
+
         const reader = stream
+          ?.pipeThrough(
+            new TransformStream({
+              transform: (
+                chunk: Uint8Array,
+                controller: TransformStreamDefaultController<Uint8Array>
+              ) => {
+                progress += chunk.byteLength;
+                controller.enqueue(chunk);
+              },
+            })
+          )
           // @ts-expect-error
-          ?.pipeThrough(new DecompressionStream("gzip"))
+          .pipeThrough(new DecompressionStream("gzip"))
           .pipeThrough(transformer)
           .getReader();
 
@@ -110,22 +130,21 @@ export function useLayerPreview({
           const result = await reader.read();
           done = result.done;
           if (result.value) files.push(result.value);
-          if (index < 10 || index % 20 === 0) {
-            setPreview({
-              text: null,
-              json: null,
-              files: [...files],
-              isLoading: true,
-            });
-          }
+          throttledSetPreview({
+            text: undefined,
+            json: undefined,
+            files: [...files],
+            progress: (progress * 100) / size,
+          });
+
           index++;
         }
 
         setPreview({
-          text: null,
-          json: null,
+          text: undefined,
+          json: undefined,
           files,
-          isLoading: false,
+          progress: undefined,
         });
       } else {
         const textStream = stream.pipeThrough(new TextDecoderStream());
@@ -143,8 +162,8 @@ export function useLayerPreview({
 
         setPreview({
           text: data,
-          json: null,
-          files: null,
+          json: undefined,
+          files: undefined,
         });
       }
     });

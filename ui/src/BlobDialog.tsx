@@ -1,5 +1,11 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { CircularProgress, DialogContent, Tooltip } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  DialogContent,
+  LinearProgress,
+  Tooltip,
+} from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -13,15 +19,39 @@ import { JsonViewer } from "./JsonViewer";
 import { useDownloadLayer, useLayerPreview } from "./useBlob";
 import { useIsLoggedIn } from "./useIsLoggedIn";
 
+function LinearProgressWithLabel({ value }: { value: number }) {
+  return (
+    <Stack alignItems="center" sx={{ position: "absolute", width: "100%" }}>
+      <Box sx={{ display: "flex", alignItems: "center", width: "70%", mb: 3 }}>
+        <Box>
+          <Typography variant="body2" color="text.secondary">
+            Reading file info
+          </Typography>
+        </Box>
+        <Box sx={{ mr: 1, ml: 2, width: "80%" }}>
+          <LinearProgress value={value} variant="determinate" />
+        </Box>
+        <Box sx={{ minWidth: 35 }}>
+          <Typography variant="body2" color="text.secondary">{`${Math.round(
+            value
+          )}%`}</Typography>
+        </Box>
+      </Box>
+    </Stack>
+  );
+}
+
 export default function BlobDialog({
   repo,
   digest,
   mediaType,
+  size,
   closeDialog,
 }: {
   digest: string;
   mediaType: string;
   repo: string;
+  size: number;
   closeDialog: () => void;
 }) {
   const downloadLayer = useDownloadLayer({
@@ -34,6 +64,7 @@ export default function BlobDialog({
     repo,
     digest,
     mediaType,
+    size,
   });
 
   const isLoggedIn = useIsLoggedIn();
@@ -88,6 +119,9 @@ export default function BlobDialog({
             title={`Loading ${digest} ...`}
             image={<CircularProgress />}
           ></EmptyState>
+        )}
+        {preview?.progress !== undefined && (
+          <LinearProgressWithLabel value={preview.progress} />
         )}
         {!!preview?.text && <pre>{preview.text}</pre>}
         {!!preview?.json && <JsonViewer json={preview.json} />}
