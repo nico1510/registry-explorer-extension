@@ -103,7 +103,9 @@ export function useLayerPreview({
         );
 
         let progress = 0;
-        const throttledSetPreview = throttle(setPreview, 1000);
+        const throttledSetPreview = throttle(setPreview, 1000, {
+          trailing: false,
+        });
 
         const reader = stream
           ?.pipeThrough(
@@ -124,7 +126,6 @@ export function useLayerPreview({
 
         let done = false;
         let files: FileInfo[] = [];
-        let index = 0;
 
         while (!done) {
           const result = await reader.read();
@@ -136,9 +137,9 @@ export function useLayerPreview({
             files: [...files],
             progress: (progress * 100) / size,
           });
-
-          index++;
         }
+
+        throttledSetPreview.cancel();
 
         setPreview({
           text: undefined,
