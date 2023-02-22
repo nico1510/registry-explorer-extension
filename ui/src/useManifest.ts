@@ -21,16 +21,18 @@ export interface LayerOrBlob {
   };
 }
 
+export interface ManifestConfig {
+  mediaType: string;
+  size: number;
+  digest: string;
+}
+
 export interface Manifest {
   schemaVersion: number;
   _digestOrTag: string;
   digest: string;
   mediaType: string;
-  config: {
-    mediaType: string;
-    size: number;
-    digest: string;
-  };
+  config: ManifestConfig;
   layers: Array<LayerOrBlob>;
   blobs?: Array<LayerOrBlob>;
 }

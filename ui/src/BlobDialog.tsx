@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Stack } from "@mui/system";
+import { NodeType } from "./App";
 import { EmptyState } from "./EmptyState";
 import { FileTree } from "./FileTree";
 import { JsonViewer } from "./JsonViewer";
@@ -47,12 +48,14 @@ export default function BlobDialog({
   digest,
   mediaType,
   size,
+  nodeType,
   closeDialog,
 }: {
   digest: string;
   mediaType: string;
   repo: string;
   size: number;
+  nodeType: NodeType;
   closeDialog: () => void;
 }) {
   const downloadLayer = useDownloadLayer({
@@ -69,6 +72,8 @@ export default function BlobDialog({
   });
 
   const isLoggedIn = useIsLoggedIn();
+
+  const resourceName = nodeType === "config" ? "Config" : "Layer";
 
   return (
     <Dialog fullScreen open onClose={closeDialog}>
@@ -94,7 +99,7 @@ export default function BlobDialog({
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6">
-              {`Layer Content ${preview?.text ? "Preview" : ""}`}
+              {`${resourceName} Content ${preview?.text ? "Preview" : ""}`}
             </Typography>
             <Typography sx={{ ml: 2, flex: 1 }}>{digest}</Typography>
           </Stack>
@@ -107,7 +112,7 @@ export default function BlobDialog({
                 disabled={!isLoggedIn}
                 onClick={() => downloadLayer()}
               >
-                Download Layer
+                Download {resourceName}
               </Button>
             </span>
           </Tooltip>

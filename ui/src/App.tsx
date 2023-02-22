@@ -14,8 +14,11 @@ import {
   isIndex,
   LayerOrBlob,
   Manifest,
+  ManifestConfig,
 } from "./useManifest";
 import { useToken } from "./useToken";
+
+export type NodeType = "index" | "manifest" | "config" | "layer" | "blob";
 
 export function App() {
   const [reference, setReference] = useLocalStorage(
@@ -42,7 +45,12 @@ export function App() {
   }
 
   const [enabled, setEnabled] = React.useState(false);
-  const [blobNode, setBlobNode] = React.useState<LayerOrBlob | null>(null);
+  const [blobNode, setBlobNode] = React.useState<{
+    digest: string;
+    mediaType: string;
+    size: number;
+    nodeType: NodeType;
+  } | null>(null);
 
   const { data: tokenResponse, isLoading: isLoadingToken } = useToken(repo, {
     enabled: enabled && !!repo && !!digestOrTag,
@@ -85,13 +93,19 @@ export function App() {
     }) as any);
   }
 
-  const onNodeClick = (node: HierarchyPointNode<TreeNodeDatum>) => {
-    const digest = node.data.attributes?.digest as any as string;
-    const isLayer = node.data.attributes?._isLayer;
-    isLayer
-      ? setBlobNode(
-          JSON.parse(JSON.stringify(node.data.attributes as any as LayerOrBlob))
-        )
+  const onNodeClick = (
+    target: NodeType,
+    node: Index | Manifest | ManifestConfig | LayerOrBlob
+  ) => {
+    const digest = node.digest;
+    const showBlob = (["blob", "layer", "config"] as NodeType[]).includes(
+      target
+    );
+    showBlob
+      ? setBlobNode({
+          ...JSON.parse(JSON.stringify(node as LayerOrBlob)),
+          nodeType: target,
+        })
       : onManifestNodeClick(digest);
   };
 
@@ -142,6 +156,7 @@ export function App() {
           digest={blobNode.digest}
           mediaType={blobNode.mediaType}
           size={blobNode.size}
+          nodeType={blobNode.nodeType}
           closeDialog={() => setBlobNode(null)}
         />
       )}

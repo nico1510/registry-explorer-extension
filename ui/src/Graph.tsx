@@ -1,13 +1,16 @@
 import { css } from "@emotion/css";
 import { useTheme } from "@mui/material";
-import type { HierarchyPointNode } from "d3-hierarchy";
 import Tree from "react-d3-tree";
-import type {
-  RawNodeDatum,
-  TreeNodeDatum,
-} from "react-d3-tree/lib/types/types/common";
-import Node from "./Node";
-import { Index, isIndex, Manifest } from "./useManifest";
+import type { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
+import { NodeType } from "./App";
+import { Node } from "./Node";
+import {
+  Index,
+  isIndex,
+  LayerOrBlob,
+  Manifest,
+  ManifestConfig,
+} from "./useManifest";
 
 function indexToTree(index: Index): RawNodeDatum {
   return {
@@ -20,6 +23,7 @@ function indexToTree(index: Index): RawNodeDatum {
             name: digest,
             attributes: {
               digest,
+              _nodeType: "index" as NodeType,
               ...platform,
               ...rest,
             },
@@ -31,18 +35,34 @@ function indexToTree(index: Index): RawNodeDatum {
 function manifestToTree(manifest: Manifest): RawNodeDatum {
   return {
     name: manifest.digest,
-    attributes: manifest as any,
-    children: [...(manifest.layers ?? []), ...(manifest.blobs ?? [])].map(
-      ({ digest, ...child }) =>
-        ({
-          name: digest,
-          attributes: {
-            _isLayer: true,
-            digest,
-            ...child,
-          },
-        } as any)
-    ),
+    attributes: {
+      ...((manifest ?? {}) as any),
+      _nodeType: "manifest" as NodeType,
+    },
+    children: [
+      ...(manifest.layers ?? []).map(
+        ({ digest, ...child }) =>
+          ({
+            name: digest,
+            attributes: {
+              _nodeType: "layer" as NodeType,
+              digest,
+              ...child,
+            },
+          } as any)
+      ),
+      ...(manifest.blobs ?? []).map(
+        ({ digest, ...child }) =>
+          ({
+            name: digest,
+            attributes: {
+              _nodeType: "blob" as NodeType,
+              digest,
+              ...child,
+            },
+          } as any)
+      ),
+    ],
   };
 }
 
@@ -51,7 +71,10 @@ export default function Graph({
   onNodeClick,
 }: {
   index: Index | Manifest;
-  onNodeClick: (node: HierarchyPointNode<TreeNodeDatum>) => void;
+  onNodeClick: (
+    target: NodeType,
+    data: Index | Manifest | ManifestConfig | LayerOrBlob
+  ) => void;
 }) {
   const data = isIndex(index) ? indexToTree(index) : manifestToTree(index);
   const theme = useTheme();
@@ -69,9 +92,8 @@ export default function Graph({
           letter-spacing: 0;
         }
       `}
-      onNodeClick={onNodeClick}
       renderCustomNodeElement={(nodeProps) => (
-        <Node nodeData={nodeProps.nodeDatum} onClick={nodeProps.onNodeClick} />
+        <Node nodeData={nodeProps.nodeDatum} onClick={onNodeClick} />
       )}
       translate={{ x: 610, y: 500 }}
       zoom={0.7}

@@ -1,17 +1,22 @@
 import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
-import { SyntheticEvent } from "react";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
-import { Manifest } from "./useManifest";
+import { NodeType } from "./App";
+import { Index, LayerOrBlob, Manifest, ManifestConfig } from "./useManifest";
 
-const Node = ({
+export function Node({
   nodeData,
   onClick,
 }: {
   nodeData: TreeNodeDatum;
-  onClick: (evt: SyntheticEvent) => void;
-}) => {
+  onClick: (
+    target: NodeType,
+    data: Index | Manifest | ManifestConfig | LayerOrBlob
+  ) => void;
+}) {
   const theme = useTheme();
-  const backgroundColor = nodeData.attributes?._isLayer
+  const backgroundColor = (["layer", "blob"] as NodeType[]).includes(
+    nodeData.attributes?._nodeType as NodeType
+  )
     ? theme.palette.docker.violet[700]
     : theme.palette.docker.blue[700];
   const color = theme.palette.getContrastText(backgroundColor);
@@ -59,13 +64,19 @@ const Node = ({
             flexDirection: "column",
             alignItems: "center",
           }}
-          onClick={onClick}
+          onClick={() =>
+            onClick(
+              nodeData.attributes?._nodeType as NodeType,
+              nodeData.attributes as any
+            )
+          }
         >
           <strong>digest: {nodeData.name ?? "N/A"}</strong>
           media_type: {nodeData.attributes?.mediaType ?? "N/A"}
           {!!config && (
             <Stack
               padding={0.5}
+              onClick={() => onClick("config", config as any)}
               sx={{
                 border: `1px dashed ${color}`,
                 position: "relative",
@@ -88,6 +99,4 @@ const Node = ({
       </Tooltip>
     </foreignObject>
   );
-};
-
-export default Node;
+}
