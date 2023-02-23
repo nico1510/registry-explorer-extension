@@ -68,6 +68,7 @@ export default function BlobDialog({
     repo,
     digest,
     mediaType,
+    nodeType,
     size,
   });
 

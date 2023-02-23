@@ -1,13 +1,5 @@
 import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
-import {
-  Box,
-  Card,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Card, Stack, Tooltip, useTheme } from "@mui/material";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { NodeType } from "./App";
 import { Index, LayerOrBlob, Manifest, ManifestConfig } from "./useManifest";

@@ -1,5 +1,6 @@
 import throttle from "lodash/throttle";
 import { useEffect, useRef, useState } from "react";
+import { NodeType } from "./App";
 import {
   FileInfo,
   TarArchiveStreamTransformer,
@@ -11,11 +12,13 @@ export function useLayerContent({
   repo,
   digest,
   mediaType,
+  nodeType,
   size,
 }: {
   repo: string;
   digest: string;
   mediaType: string;
+  nodeType: NodeType;
   size: number;
 }) {
   const { data: tokenResponse } = useToken(repo);
@@ -42,7 +45,7 @@ export function useLayerContent({
     ).then(async (stream) => {
       if (!stream) return setPreview(undefined);
 
-      if (mediaType.endsWith("json")) {
+      if (mediaType.endsWith("json") || nodeType === "config") {
         const blob = await streamToBlob(stream);
         const text = await blob.text();
         let json = null;
@@ -51,7 +54,11 @@ export function useLayerContent({
         } catch (error: unknown) {
           console.error(error);
         }
-        setPreview({ text: !json ? text : undefined, json, files: undefined });
+        setPreview({
+          text: !json ? text : undefined,
+          json: json ?? undefined,
+          files: undefined,
+        });
       } else if (mediaType.endsWith("tar+gzip")) {
         const transformer = new TransformStream(
           new TarArchiveStreamTransformer()
