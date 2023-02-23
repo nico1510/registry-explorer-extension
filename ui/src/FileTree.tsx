@@ -1,7 +1,7 @@
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import FolderIcon from "@mui/icons-material/Folder";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import TreeItem, { treeItemClasses, TreeItemProps } from "@mui/lab/TreeItem";
 import TreeView from "@mui/lab/TreeView";
 import Box from "@mui/material/Box";
@@ -86,7 +86,9 @@ function Directory({ file }: { file: FileTree }) {
       nodeId={file.path}
       labelText={file.name}
       labelInfo={file.type !== "directory" ? prettyBytes(file.size) : undefined}
-      labelIcon={file.type === "directory" ? FolderIcon : InsertDriveFileIcon}
+      labelIcon={
+        file.type === "directory" ? FolderIcon : InsertDriveFileOutlinedIcon
+      }
     >
       {!file.children?.length
         ? null

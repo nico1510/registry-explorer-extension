@@ -1,5 +1,5 @@
 import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
-import { Box, Card, Stack, Tooltip, useTheme } from "@mui/material";
+import { Box, Button, Card, Tooltip, useTheme } from "@mui/material";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { NodeType } from "./App";
 import { Index, LayerOrBlob, Manifest, ManifestConfig } from "./useManifest";
@@ -27,13 +27,12 @@ export function Node({
       y={config ? -60 : -30}
       style={{
         width: 650,
-        height: config ? 120 : 80,
+        height: config ? 110 : 70,
         overflow: "visible",
       }}
     >
       <Tooltip
         arrow={false}
-        leaveDelay={400}
         componentsProps={{
           tooltip: {
             sx: {
@@ -82,40 +81,21 @@ export function Node({
             digest: <strong>{nodeData.name ?? "N/A"}</strong>
           </span>
           media_type: {nodeData.attributes?.mediaType ?? "N/A"}
+          {!!config && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => onClick("config", config as any)}
+              sx={{ mt: 1, fontWeight: "bold", color, borderColor: color }}
+            >
+              <Box mr={2}>View Config</Box>
+              <LaunchOutlinedIcon
+                sx={{ stroke: color, strokeWidth: 0, ml: 1 }}
+              />
+            </Button>
+          )}
         </Card>
       </Tooltip>
-      {!!config && (
-        <Stack
-          onClick={() => onClick("config", config as any)}
-          sx={(theme) => ({
-            position: "absolute",
-            bottom: -40,
-            left: 0,
-            backgroundColor: theme.palette.docker.blue[500],
-            filter: "drop-shadow(2px 2px 4px black)",
-            borderRadius: 2,
-            padding: 1,
-            color,
-            alignItems: "center",
-          })}
-        >
-          <Stack
-            direction="row"
-            sx={{ textAlign: "center", fontWeight: "bold" }}
-          >
-            Config
-            <LaunchOutlinedIcon sx={{ stroke: color, strokeWidth: 0, ml: 1 }} />
-          </Stack>
-          <Stack
-            direction="column"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <div>digest: {config.digest ?? "N/A"}</div>
-            <div>media_type: {config.mediaType ?? "N/A"}</div>
-          </Stack>
-        </Stack>
-      )}
     </foreignObject>
   );
 }

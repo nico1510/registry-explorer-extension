@@ -85,7 +85,7 @@ export default function Graph({
         transform: translate(-610px, 0);
       `}
       svgClassName={css`
-        rd3t-link path {
+        .rd3t-link {
           stroke: ${theme.palette.text.primary};
         }
         div {
