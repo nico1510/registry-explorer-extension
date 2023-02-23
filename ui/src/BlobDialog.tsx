@@ -23,8 +23,8 @@ import { useLayerContent } from "./useLayerContent";
 
 function LinearProgressWithLabel({ value }: { value: number }) {
   return (
-    <Stack alignItems="center" sx={{ position: "absolute", width: "100%" }}>
-      <Box sx={{ display: "flex", alignItems: "center", width: "70%", mb: 3 }}>
+    <Stack alignItems="center" sx={{ position: "absolute", width: "90%" }}>
+      <Box sx={{ display: "flex", alignItems: "center", width: "90%", mb: 3 }}>
         <Box>
           <Typography variant="body2" color="text.secondary">
             Reading file info
