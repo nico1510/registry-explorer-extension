@@ -1,15 +1,13 @@
 import { FormHelperText, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useQuery } from "@tanstack/react-query";
-import type { HierarchyPointNode } from "d3-hierarchy";
 import React from "react";
-import { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import BlobDialog from "./BlobDialog";
 import Graph from "./Graph";
 import { queryClient } from "./main";
 import { useLocalStorage } from "./useLocalStorage";
 import {
-  getManifestQuery,
+  getIndexOrManifestQuery,
   Index,
   isIndex,
   LayerOrBlob,
@@ -57,7 +55,7 @@ export function App() {
   });
 
   const { data: root, isLoading: isLoadingIndex } = useQuery({
-    ...getManifestQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
+    ...getIndexOrManifestQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     staleTime: Infinity,
@@ -67,14 +65,14 @@ export function App() {
 
   async function onManifestNodeClick(digest: string) {
     const result = await queryClient.fetchQuery(
-      getManifestQuery(repo, digest, tokenResponse?.token ?? "")
+      getIndexOrManifestQuery(repo, digest, tokenResponse?.token ?? "")
     );
-    const parentKey = getManifestQuery(
+    const rootQueryKey = getIndexOrManifestQuery(
       repo,
       digestOrTag,
       tokenResponse?.token ?? ""
     ).queryKey;
-    queryClient.setQueryData(parentKey!, ((previous: Index | Manifest) => {
+    queryClient.setQueryData(rootQueryKey!, ((previous: Index | Manifest) => {
       if (previous && isIndex(previous)) {
         return {
           ...previous,
@@ -98,6 +96,7 @@ export function App() {
     node: Index | Manifest | ManifestConfig | LayerOrBlob
   ) => {
     const digest = node.digest;
+    if (digest === root?.digest) return; // we have clicked the root node again
     const showBlob = (["blob", "layer", "config"] as NodeType[]).includes(
       target
     );

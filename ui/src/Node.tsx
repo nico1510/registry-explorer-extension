@@ -1,8 +1,16 @@
-import { Box, Stack, Tooltip, Typography, useTheme } from "@mui/material";
+import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
+import {
+  Box,
+  Card,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { NodeType } from "./App";
 import { Index, LayerOrBlob, Manifest, ManifestConfig } from "./useManifest";
-
 export function Node({
   nodeData,
   onClick,
@@ -23,18 +31,16 @@ export function Node({
   const config: Manifest["config"] = nodeData.attributes?.config as any;
   return (
     <foreignObject
+      y={config ? -60 : -30}
       style={{
-        border: `1px solid ${color}`,
-        color,
-        backgroundColor,
-        overflow: "auto",
-        width: 610,
-        height: config ? 100 : 60,
+        width: 650,
+        height: config ? 120 : 80,
+        overflow: "visible",
       }}
-      y={-30}
     >
       <Tooltip
         arrow={false}
+        leaveDelay={400}
         componentsProps={{
           tooltip: {
             sx: {
@@ -58,11 +64,19 @@ export function Node({
           </Box>
         }
       >
-        <Box
+        <Card
+          elevation={3}
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: "flex-start",
+            overflow: "visible",
+            position: "relative",
+            padding: 1,
+            height: "100%",
+            color,
+            backgroundColor,
           }}
           onClick={() =>
             onClick(
@@ -71,32 +85,44 @@ export function Node({
             )
           }
         >
-          <strong>digest: {nodeData.name ?? "N/A"}</strong>
+          <span>
+            digest: <strong>{nodeData.name ?? "N/A"}</strong>
+          </span>
           media_type: {nodeData.attributes?.mediaType ?? "N/A"}
-          {!!config && (
-            <Stack
-              padding={0.5}
-              onClick={() => onClick("config", config as any)}
-              sx={{
-                border: `1px dashed ${color}`,
-                position: "relative",
-              }}
-            >
-              <Typography
-                sx={{
-                  position: "absolute",
-                  top: -14,
-                  background: backgroundColor,
-                }}
-              >
-                config
-              </Typography>
-              <div>digest: {config.digest ?? "N/A"}</div>
-              <div>media_type: {config.mediaType ?? "N/A"}</div>
-            </Stack>
-          )}
-        </Box>
+        </Card>
       </Tooltip>
+      {!!config && (
+        <Stack
+          onClick={() => onClick("config", config as any)}
+          sx={(theme) => ({
+            position: "absolute",
+            bottom: -40,
+            left: 0,
+            backgroundColor: theme.palette.docker.blue[500],
+            filter: "drop-shadow(2px 2px 4px black)",
+            borderRadius: 2,
+            padding: 1,
+            color,
+            alignItems: "center",
+          })}
+        >
+          <Stack
+            direction="row"
+            sx={{ textAlign: "center", fontWeight: "bold" }}
+          >
+            Config
+            <LaunchOutlinedIcon sx={{ stroke: color, strokeWidth: 0, ml: 1 }} />
+          </Stack>
+          <Stack
+            direction="column"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <div>digest: {config.digest ?? "N/A"}</div>
+            <div>media_type: {config.mediaType ?? "N/A"}</div>
+          </Stack>
+        </Stack>
+      )}
     </foreignObject>
   );
 }
