@@ -59,7 +59,7 @@ export function useLayerContent({
           json: json ?? undefined,
           files: undefined,
         });
-      } else if (mediaType.endsWith("tar+gzip")) {
+      } else if (mediaType.endsWith("tar") || mediaType.endsWith("tar+gzip")) {
         const transformer = new TransformStream(
           new TarArchiveStreamTransformer()
         );
@@ -69,22 +69,22 @@ export function useLayerContent({
           trailing: false,
         });
 
-        const reader = stream
-          ?.pipeThrough(
-            new TransformStream({
-              transform: (
-                chunk: Uint8Array,
-                controller: TransformStreamDefaultController<Uint8Array>
-              ) => {
-                progress += chunk.byteLength;
-                controller.enqueue(chunk);
-              },
-            })
-          )
-          // @ts-expect-error
-          .pipeThrough(new DecompressionStream("gzip"))
-          .pipeThrough(transformer)
-          .getReader();
+        const progessStream = stream?.pipeThrough(
+          new TransformStream({
+            transform: (
+              chunk: Uint8Array,
+              controller: TransformStreamDefaultController<Uint8Array>
+            ) => {
+              progress += chunk.byteLength;
+              controller.enqueue(chunk);
+            },
+          })
+        );
+        const decompressedStream = mediaType.endsWith("tar+gzip")
+          ? // @ts-expect-error
+            progessStream?.pipeThrough(new DecompressionStream("gzip"))
+          : progessStream;
+        const reader = decompressedStream.pipeThrough(transformer).getReader();
 
         let done = false;
         let files: FileInfo[] = [];
