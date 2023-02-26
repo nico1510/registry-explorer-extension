@@ -2,6 +2,7 @@ import LaunchOutlinedIcon from "@mui/icons-material/LaunchOutlined";
 import { Box, Button, Card, Tooltip, useTheme } from "@mui/material";
 import type { TreeNodeDatum } from "react-d3-tree/lib/types/types/common";
 import { NodeType } from "./App";
+import { MediaTypeLogo } from "./icons/MediaTypeLogo";
 import { Index, LayerOrBlob, Manifest, ManifestConfig } from "./useManifest";
 
 export function Node({
@@ -77,6 +78,29 @@ export function Node({
             )
           }
         >
+          {nodeData.attributes?.mediaType && (
+            <Box
+              sx={(theme) => {
+                return {
+                  width: 40,
+                  height: 40,
+                  position: "absolute",
+                  top: -20,
+                  left: -20,
+                  borderRadius: "20%",
+                  backgroundColor: theme.palette.background.paper,
+                  border: `1px solid ${theme.palette.divider}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                };
+              }}
+            >
+              <MediaTypeLogo
+                mediaType={nodeData.attributes.mediaType as string}
+              />
+            </Box>
+          )}
           <span>
             digest: <strong>{nodeData.name ?? "N/A"}</strong>
           </span>
@@ -86,12 +110,36 @@ export function Node({
               variant="outlined"
               color="secondary"
               onClick={() => onClick("config", config as any)}
-              sx={{ mt: 1, fontWeight: "bold", color, borderColor: color }}
+              sx={{
+                mt: 1,
+                fontWeight: "bold",
+                color,
+                borderColor: color,
+                display: "flex",
+                alignItems: "center",
+              }}
             >
+              {config.mediaType && (
+                <Box
+                  sx={(theme) => {
+                    return {
+                      width: 24,
+                      height: 24,
+                      borderRadius: "20%",
+                      backgroundColor: theme.palette.background.paper,
+                      border: `1px solid ${theme.palette.divider}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      mr: 2,
+                    };
+                  }}
+                >
+                  <MediaTypeLogo mediaType={config.mediaType} />
+                </Box>
+              )}
               <Box mr={2}>View Config</Box>
-              <LaunchOutlinedIcon
-                sx={{ stroke: color, strokeWidth: 0, ml: 1 }}
-              />
+              <LaunchOutlinedIcon sx={{ stroke: color, strokeWidth: 0 }} />
             </Button>
           )}
         </Card>
