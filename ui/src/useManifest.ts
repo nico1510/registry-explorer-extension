@@ -35,6 +35,17 @@ export interface Manifest {
   config: ManifestConfig;
   layers: Array<LayerOrBlob>;
   blobs?: Array<LayerOrBlob>;
+  manifests?: Manifest[];
+  platform: {
+    architecture: string;
+    os: string;
+    variant?: string;
+    features?: string[];
+  };
+  annotations?: {
+    [key: string]: string;
+  };
+  _manifest?: Manifest;
 }
 
 export interface Index {
@@ -42,21 +53,7 @@ export interface Index {
   _digestOrTag: string;
   digest: string;
   contentType: string;
-  manifests: Array<{
-    mediaType: string;
-    digest: string;
-    size: number;
-    platform: {
-      architecture: string;
-      os: string;
-      variant?: string;
-      features?: string[];
-    };
-    annotations?: {
-      [key: string]: string;
-    };
-    manifest?: Manifest;
-  }>;
+  manifests: Manifest[];
 }
 
 export function isIndex(

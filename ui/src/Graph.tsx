@@ -16,9 +16,9 @@ function indexToTree(index: Index): RawNodeDatum {
   return {
     name: index.digest,
     attributes: index as any,
-    children: index.manifests.map(({ digest, manifest, platform, ...rest }) =>
-      manifest
-        ? manifestToTree(manifest)
+    children: index.manifests.map(({ digest, _manifest, platform, ...rest }) =>
+      _manifest
+        ? manifestToTree(_manifest)
         : {
             name: digest,
             attributes: {
@@ -61,6 +61,17 @@ function manifestToTree(manifest: Manifest): RawNodeDatum {
               ...child,
             },
           } as any)
+      ),
+      ...(manifest.manifests ?? []).map((child) =>
+        child._manifest
+          ? manifestToTree(child._manifest)
+          : ({
+              name: child.digest,
+              attributes: {
+                _nodeType: "manifest" as NodeType,
+                ...child,
+              },
+            } as any)
       ),
     ],
   };

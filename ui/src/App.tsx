@@ -80,10 +80,27 @@ export function App() {
             if (mf.digest === digest) {
               return {
                 ...mf,
-                manifest: result,
+                ...(mf.manifests ? { ...result } : { _manifest: result }),
               };
             }
-            return mf;
+            // we can only go two levels deep with this approach
+            return mf._manifest?.manifests
+              ? {
+                  ...mf,
+                  _manifest: {
+                    ...mf._manifest,
+                    manifests: mf._manifest.manifests.map((nestedMf) => {
+                      if (nestedMf.digest === digest) {
+                        return {
+                          ...nestedMf,
+                          _manifest: result,
+                        };
+                      }
+                      return nestedMf;
+                    }),
+                  },
+                }
+              : mf;
           }),
         };
       }
