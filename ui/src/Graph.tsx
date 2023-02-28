@@ -1,7 +1,10 @@
 import { css } from "@emotion/css";
 import { useTheme } from "@mui/material";
 import Tree from "react-d3-tree";
-import type { RawNodeDatum } from "react-d3-tree/lib/types/types/common";
+import type {
+  RawNodeDatum,
+  TreeNodeDatum,
+} from "react-d3-tree/lib/types/types/common";
 import { NodeType } from "./App";
 import { Node } from "./Node";
 import {
@@ -16,10 +19,22 @@ function indexToTree(index: Index): RawNodeDatum {
   return {
     name: index.digest,
     attributes: index as any,
-    children: index.manifests.map(({ digest, _manifest, platform, ...rest }) =>
-      _manifest
-        ? manifestToTree(_manifest)
-        : {
+    children: index.manifests.map(
+      ({ digest, _manifest, platform, ...rest }) => {
+        if (_manifest) {
+          const tree = manifestToTree(_manifest);
+          return {
+            ...rest,
+            ...tree,
+            // we have to merge the attributes
+            attributes: {
+              ...platform,
+              ...(rest as any).attributes,
+              ...tree.attributes,
+            },
+          };
+        } else {
+          return {
             name: digest,
             attributes: {
               digest,
@@ -27,7 +42,9 @@ function indexToTree(index: Index): RawNodeDatum {
               ...platform,
               ...rest,
             },
-          }
+          };
+        }
+      }
     ) as any,
   };
 }

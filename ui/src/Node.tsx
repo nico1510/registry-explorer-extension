@@ -23,12 +23,17 @@ export function Node({
     : theme.palette.docker.blue[700];
   const color = theme.palette.getContrastText(backgroundColor);
   const config: Manifest["config"] = nodeData.attributes?.config as any;
+  const arch =
+    nodeData.attributes?.architecture &&
+    `${nodeData.attributes?.architecture}${nodeData.attributes?.variant ?? ""}`;
+  const os = nodeData.attributes?.os;
+  const bigSize = config || os || arch;
   return (
     <foreignObject
-      y={config ? -60 : -30}
+      y={bigSize ? -60 : -30}
       style={{
         width: 650,
-        height: config ? 110 : 70,
+        height: bigSize ? 120 : 70,
         overflow: "visible",
       }}
     >
@@ -63,7 +68,7 @@ export function Node({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "flex-start",
+            justifyContent: "center",
             overflow: "visible",
             position: "relative",
             padding: 1,
@@ -89,7 +94,7 @@ export function Node({
                   left: -20,
                   borderRadius: "20%",
                   backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${theme.palette.divider}`,
+                  border: `2px solid ${theme.palette.text.primary}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -104,7 +109,8 @@ export function Node({
           <span>
             digest: <strong>{nodeData.name ?? "N/A"}</strong>
           </span>
-          media_type: {nodeData.attributes?.mediaType ?? "N/A"}
+          <div>media_type: {nodeData.attributes?.mediaType ?? "N/A"}</div>
+          <div>{(arch || os) && `platform: ${arch} ${os}`}</div>
           {!!config && (
             <Button
               variant="outlined"
@@ -127,7 +133,7 @@ export function Node({
                       height: 24,
                       borderRadius: "20%",
                       backgroundColor: theme.palette.background.paper,
-                      border: `1px solid ${theme.palette.divider}`,
+                      border: `1px solid ${color}`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
