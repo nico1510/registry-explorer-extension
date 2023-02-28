@@ -28,11 +28,11 @@ export function App() {
 
   if (reference.includes("sha256:")) {
     const parts = reference.split("@");
-    repo = parts[0];
+    repo = parts[0].includes("/") ? parts[0] : `library/${parts[0]}`;
     digestOrTag = parts[1];
   } else if (reference.includes(":")) {
     const parts = reference.split(":");
-    repo = parts[0];
+    repo = parts[0].includes("/") ? parts[0] : `library/${parts[0]}`;
     digestOrTag = parts[1];
   } else if (reference.includes("/")) {
     repo = reference;
