@@ -1,9 +1,10 @@
 # Registry Explorer
 
-
 Explore what's inside the tags published on Docker Hub and drill into the images, layers & files.
 
-<img width="1649" alt="Screenshot 2023-03-01 at 08 07 47" src="https://user-images.githubusercontent.com/5033050/222069060-cdce8542-da55-4ee2-813c-43880599712d.png">
+![screenshot](docs/screenshots/graph.png)
+
+![screenshot](docs/screenshots/files.png)
 
 <img width="1649" alt="Screenshot 2023-03-01 at 08 09 23" src="https://user-images.githubusercontent.com/5033050/222069043-ea03d898-3bd5-486f-b6ca-4f4104fad86c.png">
 
