@@ -1,9 +1,8 @@
-import { Box } from "@mui/material";
 import helmIcon from "./helm-icon-color.svg";
+import inTotoLogo from "./in-toto-logo.png";
 import ociIcon from "./oci-icon-color.png";
 import singularityIcon from "./singularity_v3.png";
 import wasmLogo from "./WebAssembly_Logo.svg";
-import inTotoLogo from "./in-toto-logo.png";
 
 function getLogoForMediaType(media_type: string) {
   if (media_type.startsWith("application/vnd.cncf.helm")) {

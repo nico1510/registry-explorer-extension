@@ -59,7 +59,11 @@ export function useLayerContent({
           json: json ?? undefined,
           files: undefined,
         });
-      } else if (mediaType.endsWith("tar") || mediaType.endsWith("tar+gzip")) {
+      } else if (
+        mediaType.endsWith("tar") ||
+        mediaType.endsWith("tar+gzip") ||
+        mediaType.endsWith("tar.gzip")
+      ) {
         const transformer = new TransformStream(
           new TarArchiveStreamTransformer()
         );
@@ -80,7 +84,7 @@ export function useLayerContent({
             },
           })
         );
-        const decompressedStream = mediaType.endsWith("tar+gzip")
+        const decompressedStream = mediaType.endsWith("gzip")
           ? // @ts-expect-error
             progessStream?.pipeThrough(new DecompressionStream("gzip"))
           : progessStream;
