@@ -12,12 +12,15 @@ function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
   const tokenPath = `/token/${repo}`;
   return {
     queryKey: [tokenPath],
-    queryFn: async () =>
-      (
-        await fetch(
-          `${proxy}https://auth.docker.io/token?service=registry.docker.io&scope=repository:${repo}:pull`
-        )
-      ).json(),
+    queryFn: async () => {
+      const result = await fetch(
+        `${proxy}https://auth.docker.io/token?service=registry.docker.io&scope=repository:${repo}:pull`
+      );
+      if (!result.ok) {
+        throw new Error(`Failed to get token for ${repo}`);
+      }
+      return result.json();
+    },
   };
 }
 

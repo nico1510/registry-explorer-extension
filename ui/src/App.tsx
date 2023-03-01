@@ -1,8 +1,10 @@
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { FormHelperText, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import BlobDialog from "./BlobDialog";
+import { EmptyState } from "./EmptyState";
 import Graph from "./Graph";
 import { queryClient } from "./main";
 import { useLocalStorage } from "./useLocalStorage";
@@ -50,18 +52,31 @@ export function App() {
     nodeType: NodeType;
   } | null>(null);
 
-  const { data: tokenResponse, isLoading: isLoadingToken } = useToken(repo, {
+  const {
+    data: tokenResponse,
+    isLoading: isLoadingToken,
+    error: tokenError,
+    isError: isTokenError,
+  } = useToken(repo, {
     enabled: enabled && !!repo && !!digestOrTag,
   });
 
-  const { data: root, isLoading: isLoadingIndex } = useQuery({
+  const {
+    data: root,
+    isLoading: isLoadingIndex,
+    error: rootNodeError,
+    isError: isRootNodeError,
+  } = useQuery({
     ...getIndexOrManifestQuery(repo, digestOrTag, tokenResponse?.token ?? ""),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    retry: 1,
     staleTime: Infinity,
     cacheTime: Infinity,
     enabled: enabled && !!tokenResponse,
   });
+
+  const isError = isTokenError || isRootNodeError;
 
   async function onManifestNodeClick(digest: string) {
     const result = await queryClient.fetchQuery(
@@ -164,7 +179,14 @@ export function App() {
             Submit
           </Button>
         </Stack>
-        {root && <Graph index={root} onNodeClick={onNodeClick} />}
+        {isError && (
+          <EmptyState
+            sx={{ height: "100%", justifyContent: "center" }}
+            title={((rootNodeError ?? tokenError) as Error)?.message}
+            image={<ErrorOutlineIcon fontSize="large" />}
+          ></EmptyState>
+        )}
+        {!isError && root && <Graph index={root} onNodeClick={onNodeClick} />}
       </Stack>
       {!!blobNode && (
         <BlobDialog

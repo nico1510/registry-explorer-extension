@@ -110,7 +110,13 @@ export function Node({
             digest: <strong>{nodeData.name ?? "N/A"}</strong>
           </span>
           <div>media_type: {nodeData.attributes?.mediaType ?? "N/A"}</div>
-          <div>{(arch || os) && `platform: ${arch} ${os}`}</div>
+          <div>
+            {(arch || os) && (
+              <>
+                platform: <strong>{arch}</strong> {os !== "linux" ? os : null}
+              </>
+            )}
+          </div>
           {!!config && (
             <Button
               variant="outlined"

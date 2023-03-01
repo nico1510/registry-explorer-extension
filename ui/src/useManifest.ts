@@ -77,6 +77,11 @@ async function fetchIndexOrManifest(
       },
     }
   );
+  if (!result.ok) {
+    throw new Error(
+      `Failed to fetch manifest for ${repo}:${digestOrTag}: ${result.status} ${result.statusText}`
+    );
+  }
   const body = await result.json();
   return {
     digest: result.headers.get("docker-content-digest"),
