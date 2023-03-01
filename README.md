@@ -1,11 +1,18 @@
 # Registry Explorer
 
-This repository defines an example of a Docker extension. The files in this repository have been automatically generated as a result of running `docker extension init`.
+
+Explore what's inside the tags published on Docker Hub and drill into the images, layers & files.
+
+<img width="1649" alt="Screenshot 2023-03-01 at 08 07 47" src="https://user-images.githubusercontent.com/5033050/222069060-cdce8542-da55-4ee2-813c-43880599712d.png">
+
+<img width="1649" alt="Screenshot 2023-03-01 at 08 09 23" src="https://user-images.githubusercontent.com/5033050/222069043-ea03d898-3bd5-486f-b6ca-4f4104fad86c.png">
+
+
+
 
 This extension is composed of:
 
 - A [frontend](./ui) app in React that makes a request to the `/hello` endpoint and displays the payload in Docker Desktop.
-- A [backend](./backend) container that runs an API in Go. It exposes the `/hello` endpoint which returns a JSON payload.
 
 > You can build your Docker Extension using your fav tech stack:
 >
