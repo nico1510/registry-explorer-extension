@@ -7,8 +7,11 @@ Explore what's inside the tags published on Docker Hub and drill into the images
 
 <img width="1649" alt="Screenshot 2023-03-01 at 08 09 23" src="https://user-images.githubusercontent.com/5033050/222069043-ea03d898-3bd5-486f-b6ca-4f4104fad86c.png">
 
+Install the extension from this link https://open.docker.com/extensions/marketplace?extensionId=nicobeck/registry-explorer-extension&tag=0.0.1 or from the CLI:
 
-
+```shell
+docker extension install nicobeck/registry-explorer-extension:0.0.1
+```
 
 This extension is composed of:
 
