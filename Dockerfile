@@ -12,14 +12,15 @@ RUN npm run build
 
 FROM alpine
 LABEL org.opencontainers.image.title="Registry Explorer" \
-    org.opencontainers.image.description="Allows you to explore registry contents." \
+    org.opencontainers.image.description="Explore what's inside the tags published on Docker Hub and drill into the images, layers & files." \
     org.opencontainers.image.vendor="Nicolas Beck" \
     com.docker.desktop.extension.api.version="0.3.4" \
-    com.docker.extension.screenshots="" \
-    com.docker.extension.detailed-description="" \
-    com.docker.extension.publisher-url="" \
-    com.docker.extension.additional-urls="" \
-    com.docker.extension.changelog=""
+    com.docker.extension.screenshots='[{"alt":"graph screenshot", "url":"https://raw.githubusercontent.com/nico1510/registry-explorer-extension/main/docs/screenshots/graph.png"},{"alt":"files screenshot", "url":"https://raw.githubusercontent.com/nico1510/registry-explorer-extension/main/docs/screenshots/files.png"}]' \
+    com.docker.extension.detailed-description="This extension allows you to explore what's inside the artifacts published on Docker Hub. It lets you unfold image indexes, manifests & layers. For images built with BuildKit >=0.11, you can also view its provenance attestations." \
+    com.docker.extension.publisher-url="https://github.com/nico1510" \
+    com.docker.extension.additional-urls='[{"title":"GitHub repository","url":"https://github.com/nico1510/registry-explorer-extension"}, {"title":"Report an issue","url":"https://github.com/nico1510/registry-explorer-extension/issues"}]' \
+    com.docker.extension.changelog="" \
+    com.docker.extension.categories="utility-tools"
 
 COPY docker-compose.yaml .
 COPY metadata.json .
