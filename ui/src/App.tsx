@@ -148,6 +148,8 @@ export function App() {
           direction="row"
           alignItems="baseline"
           spacing={2}
+          component="form"
+          onSubmit={() => setEnabled(true)}
           sx={(theme) => ({
             mt: 4,
             position: "fixed",
@@ -172,6 +174,7 @@ export function App() {
             </FormHelperText>
           </Stack>
           <Button
+            type="submit"
             disabled={enabled && (isLoadingIndex || isLoadingToken)}
             variant="contained"
             onClick={() => setEnabled(true)}
