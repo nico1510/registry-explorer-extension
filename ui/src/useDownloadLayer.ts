@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { proxy } from "./main";
 import { useToken } from "./useToken";
+import { splitDockerDomain } from "./utils";
 
 function downloadBlob(blob: Blob, fileName: string) {
   const blobUrl = window.URL.createObjectURL(blob);
@@ -33,8 +34,10 @@ export async function fetchBlob(
   token: string,
   signal?: AbortSignal
 ) {
+  const {domain, remainder} = splitDockerDomain(repo);
+
   const result = await fetch(
-    `${proxy}https://registry-1.docker.io/v2/${repo}/blobs/${digest}`,
+    `${proxy}https://${domain}/v2/${remainder}/blobs/${digest}`,
     {
       headers: {
         Accept:
