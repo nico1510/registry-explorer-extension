@@ -17,6 +17,7 @@ type StyledTreeItemProps = TreeItemProps & {
   color?: string;
   labelIcon: React.ElementType<SvgIconProps>;
   labelInfo?: string;
+  labelMTime?: string;
   labelText: string;
 };
 
@@ -49,6 +50,7 @@ function StyledTreeItem(props: StyledTreeItemProps) {
     color,
     labelIcon: LabelIcon,
     labelInfo,
+    labelMTime,
     labelText,
     ...other
   } = props;
@@ -66,6 +68,9 @@ function StyledTreeItem(props: StyledTreeItemProps) {
           </Typography>
           <Typography variant="caption" color="inherit">
             {labelInfo}
+          </Typography>
+          <Typography variant="caption" color="inherit" sx={{ px: 3 }}>
+            {labelMTime}
           </Typography>
         </Box>
       }
@@ -86,6 +91,7 @@ function Directory({ file }: { file: FileTree }) {
       nodeId={file.path}
       labelText={file.name}
       labelInfo={file.type !== "directory" ? prettyBytes(file.size) : undefined}
+      labelMTime={(new Date(file.mtime * 1000)).toLocaleString()}
       labelIcon={
         file.type === "directory" ? FolderIcon : InsertDriveFileOutlinedIcon
       }
@@ -123,6 +129,7 @@ function createFileTree(
     name: "root",
     type: "directory",
     size: 0,
+    mtime: 0,
     children: [],
   }
 ): FileTree {
