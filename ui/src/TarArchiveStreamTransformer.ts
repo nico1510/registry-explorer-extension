@@ -2,6 +2,7 @@ export interface FileInfo {
   path: string;
   type: string;
   size: number;
+  mtime: number;
 }
 
 export class TarArchiveStreamTransformer {
@@ -31,6 +32,13 @@ export class TarArchiveStreamTransformer {
   #readFileSize(chunk: Uint8Array, offset: number) {
     let szStr = this.decoder
       .decode(new DataView(chunk.buffer, offset + 124, 12))
+      .substring(0, 11);
+    return parseInt(szStr, 8);
+  }
+
+  #readMTime(chunk: Uint8Array, offset: number) {
+    let szStr = this.decoder
+      .decode(new DataView(chunk.buffer, offset + 136, 12))
       .substring(0, 11);
     return parseInt(szStr, 8);
   }
@@ -66,6 +74,7 @@ export class TarArchiveStreamTransformer {
       const name = this.#readFileName(newChunk, offset);
       const type = this.#readFileType(newChunk, offset);
       const size = this.#readFileSize(newChunk, offset);
+      const mtime = this.#readMTime(newChunk, offset);
 
       if (isNaN(size)) {
         break;
@@ -76,7 +85,7 @@ export class TarArchiveStreamTransformer {
         this.totalOffset += 512;
       }
 
-      controller.enqueue({ path: name, type, size });
+      controller.enqueue({ path: name, type, size, mtime });
     }
 
     // we pretend that we have never read the remaining chunk if there is one (it will be read in the next iteration)
