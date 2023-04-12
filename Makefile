@@ -1,5 +1,5 @@
 IMAGE?=nicobeck/registry-explorer-extension
-TAG?=0.0.1
+TAG?=0.0.2
 
 BUILDER=buildx-multi-arch
 
