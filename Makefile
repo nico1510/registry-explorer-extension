@@ -7,7 +7,7 @@ INFO_COLOR = \033[0;36m
 NO_COLOR   = \033[m
 
 build: ## Build service image to be deployed as a desktop extension
-	docker build --tag=$(IMAGE):$(TAG) . --load
+	docker buildx build --tag=$(IMAGE):$(TAG) . --load
 
 install-extension: build ## Install the extension
 	docker extension install $(IMAGE):$(TAG)

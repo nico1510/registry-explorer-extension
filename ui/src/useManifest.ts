@@ -1,5 +1,6 @@
 import { QueryOptions } from "@tanstack/react-query";
 import { proxy } from "./main";
+import { splitDockerDomain } from "./utils";
 
 export function getIndexOrManifestQuery(
   repo: string,
@@ -67,8 +68,10 @@ async function fetchIndexOrManifest(
   digestOrTag: string,
   token: string
 ) {
+  const {domain, remainder} = splitDockerDomain(repo);
+
   const result = await fetch(
-    `${proxy}https://registry-1.docker.io/v2/${repo}/manifests/${digestOrTag}`,
+    `${proxy}https://${domain}/v2/${remainder}/manifests/${digestOrTag}`,
     {
       headers: {
         Accept:
