@@ -23,7 +23,7 @@ function getTokenQuery(repo: string): QueryOptions<TokenResponse> {
         `${proxy}${realm}?service=${service}&scope=repository:${remainder}:pull`
       );
       if (!result.ok) {
-        throw new Error(`Failed to get token for ${remainder}`);
+        throw new Error(`Failed to get token for ${remainder} from ${realm}`);
       }
       return result.json();
     },
